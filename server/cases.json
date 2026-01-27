@@ -1,0 +1,221 @@
+{
+  "cases": [
+    {
+      "id": "CASE-3043",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:21.960Z",
+      "lastUpdated": "2026-01-16T22:54:21.960Z"
+    },
+    {
+      "id": "CASE-3492",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:26.256Z",
+      "lastUpdated": "2026-01-16T22:54:26.256Z"
+    },
+    {
+      "id": "CASE-4586",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:27.168Z",
+      "lastUpdated": "2026-01-16T22:54:27.168Z"
+    },
+    {
+      "id": "CASE-7305",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:28.078Z",
+      "lastUpdated": "2026-01-16T22:54:28.078Z"
+    },
+    {
+      "id": "CASE-5431",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:29.050Z",
+      "lastUpdated": "2026-01-16T22:54:29.050Z"
+    },
+    {
+      "id": "CASE-4346",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:29.813Z",
+      "lastUpdated": "2026-01-16T22:54:29.813Z"
+    },
+    {
+      "id": "CASE-9101",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:30.873Z",
+      "lastUpdated": "2026-01-16T22:54:30.873Z"
+    },
+    {
+      "id": "CASE-6644",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:35.261Z",
+      "lastUpdated": "2026-01-16T22:54:35.261Z"
+    },
+    {
+      "id": "CASE-2320",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:36.310Z",
+      "lastUpdated": "2026-01-16T22:54:36.310Z"
+    },
+    {
+      "id": "CASE-9402",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:38.461Z",
+      "lastUpdated": "2026-01-16T22:54:38.461Z"
+    },
+    {
+      "id": "CASE-9051",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:39.549Z",
+      "lastUpdated": "2026-01-16T22:54:39.549Z"
+    },
+    {
+      "id": "CASE-4773",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:40.402Z",
+      "lastUpdated": "2026-01-16T22:54:40.402Z"
+    },
+    {
+      "id": "CASE-4894",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:41.593Z",
+      "lastUpdated": "2026-01-16T22:54:41.593Z"
+    },
+    {
+      "id": "CASE-6380",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:55.551Z",
+      "lastUpdated": "2026-01-16T22:54:55.551Z"
+    },
+    {
+      "id": "CASE-4796",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:56.603Z",
+      "lastUpdated": "2026-01-16T22:54:56.603Z"
+    },
+    {
+      "id": "CASE-1559",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:57.209Z",
+      "lastUpdated": "2026-01-16T22:54:57.209Z"
+    },
+    {
+      "id": "CASE-5608",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:57.654Z",
+      "lastUpdated": "2026-01-16T22:54:57.654Z"
+    },
+    {
+      "id": "CASE-9925",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:58.039Z",
+      "lastUpdated": "2026-01-16T22:54:58.039Z"
+    },
+    {
+      "id": "CASE-7710",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:58.443Z",
+      "lastUpdated": "2026-01-16T22:54:58.443Z"
+    },
+    {
+      "id": "CASE-6965",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:59.448Z",
+      "lastUpdated": "2026-01-16T22:54:59.448Z"
+    },
+    {
+      "id": "CASE-7192",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:54:59.830Z",
+      "lastUpdated": "2026-01-16T22:54:59.830Z"
+    },
+    {
+      "id": "CASE-1733",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:55:00.626Z",
+      "lastUpdated": "2026-01-16T22:55:00.626Z"
+    },
+    {
+      "id": "CASE-4136",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:56:30.453Z",
+      "lastUpdated": "2026-01-16T22:56:30.453Z"
+    },
+    {
+      "id": "CASE-2193",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:57:40.390Z",
+      "lastUpdated": "2026-01-16T22:57:40.390Z"
+    },
+    {
+      "id": "CASE-3408",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-16T22:58:50.294Z",
+      "lastUpdated": "2026-01-16T22:58:50.294Z"
+    },
+    {
+      "id": "CASE-1043",
+      "packageId": "auto-2",
+      "status": "PAID",
+      "createdAt": "2026-01-16T23:32:57.883Z",
+      "lastUpdated": "2026-01-16T23:33:26.012Z"
+    },
+    {
+      "id": "CASE-3057",
+      "packageId": "auto-1",
+      "status": "PAID",
+      "createdAt": "2026-01-17T00:21:39.189Z",
+      "lastUpdated": "2026-01-17T00:22:13.613Z"
+    },
+    {
+      "id": "CASE-3051",
+      "packageId": "auto-2",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-17T00:34:07.417Z",
+      "lastUpdated": "2026-01-17T00:34:07.417Z"
+    },
+    {
+      "id": "CASE-2470",
+      "packageId": "auto-1",
+      "status": "PAID",
+      "createdAt": "2026-01-17T00:38:59.052Z",
+      "lastUpdated": "2026-01-17T00:39:29.062Z"
+    },
+    {
+      "id": "CASE-8693",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-17T00:51:15.986Z",
+      "lastUpdated": "2026-01-17T00:51:15.986Z"
+    },
+    {
+      "id": "CASE-7217",
+      "packageId": "auto-1",
+      "status": "PAYMENT_PENDING",
+      "createdAt": "2026-01-27T01:12:15.073Z",
+      "lastUpdated": "2026-01-27T01:12:15.074Z"
+    }
+  ]
+}
