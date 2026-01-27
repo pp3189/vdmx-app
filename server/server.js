@@ -49,7 +49,8 @@ const PRICES = {
     'auto-3': 199900,
     'lease-1': 89900,
     'lease-2': 179900,
-    'lease-3': 299900
+    'lease-3': 299900,
+    'test-pkg': 1000 // $10.00 MXN (Stripe minimum is approx $10 MXN)
 };
 
 // Webhook requires raw body

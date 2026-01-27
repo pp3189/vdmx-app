@@ -88,6 +88,15 @@ export const PACKAGES: ServicePackage[] = [
       'Evaluación comparativa de perfiles',
       'Entrega prioritaria (72h)'
     ]
+  },
+  {
+    id: 'test-pkg',
+    type: 'LEASING',
+    name: 'Prueba de Sistema (Live)',
+    price: 10,
+    description: 'Paquete temporal para verificación de pagos en producción.',
+    features: ['Prueba de conexión', 'Verificación de Webhook', 'Validación de Base de Datos'],
+    recommended: false
   }
 ];
 
@@ -200,7 +209,7 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       // Payroll optional
       { id: 'recibos_nomina', name: 'Recibos de Nómina (Arrendatario - Opcional)', required: false, section: 'Arrendatario' },
       { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Arrendatario' },
-      
+
       // Aval Docs (No Bureau)
       { id: 'aval_id', name: 'Identificación Oficial (Aval)', required: true, section: 'Aval' },
       { id: 'aval_domicilio', name: 'Comprobante de Domicilio (Aval)', required: true, section: 'Aval' },
@@ -244,12 +253,12 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       // Payroll optional
       { id: 'recibos_nomina', name: 'Recibos de Nómina (Arrendatario - Opcional)', required: false, section: 'Arrendatario' },
       { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Arrendatario' },
-      
+
       // Aval Docs (Strict match of R2)
       { id: 'aval_id', name: 'Identificación Oficial (Aval)', required: true, section: 'Aval' },
       { id: 'aval_domicilio', name: 'Comprobante de Domicilio (Aval)', required: true, section: 'Aval' },
       { id: 'aval_edos', name: 'Estados de Cuenta (Aval - 3 meses)', required: true, section: 'Aval' },
-      
+
       // Coobligado Docs
       { id: 'co_id', name: 'Identificación Oficial (Coobligado)', required: true, section: 'Coobligado' },
       { id: 'co_domicilio', name: 'Comprobante de Domicilio (Coobligado)', required: true, section: 'Coobligado' },
