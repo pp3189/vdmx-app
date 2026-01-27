@@ -378,7 +378,7 @@ export const ClientDashboard: React.FC = () => {
       date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
     }));
 
-    // PERSIST TO SERVER
+    // PERSIST TO SERVER (Chain updates to prevent race conditions)
     fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -386,19 +386,37 @@ export const ClientDashboard: React.FC = () => {
         status: 'READY_FOR_ANALYSIS',
         documents: docMetadata
       })
-    }).catch(console.error);
+    })
+      .then(() => {
+        // Only trigger the next status update AFTER the first one succeeds
+        if (requirements?.skipUpload || requirements?.documents.length === 0) {
+          setActiveCase(prev => (prev ? { ...prev, status: 'READY_FOR_ANALYSIS' } : null));
 
-    setActiveCase(prev => (prev ? { ...prev, status: 'READY_FOR_ANALYSIS' } : null));
-    setTimeout(() => setActiveCase(prev => (prev ? { ...prev, status: 'IN_ANALYSIS' } : null)), 2000);
+          setTimeout(() => {
+            setActiveCase(prev => (prev ? { ...prev, status: 'IN_ANALYSIS' } : null));
 
-    // Final Update for auto-transition
-    setTimeout(() => {
-      fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'IN_ANALYSIS' })
-      }).catch(console.error);
-    }, 2000);
+            // Final Persistence
+            fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'IN_ANALYSIS' })
+            }).catch(console.error);
+          }, 2000);
+        } else {
+          setActiveCase(prev => (prev ? { ...prev, status: 'READY_FOR_ANALYSIS' } : null));
+          setTimeout(() => setActiveCase(prev => (prev ? { ...prev, status: 'IN_ANALYSIS' } : null)), 2000);
+
+          // Final Persistence
+          setTimeout(() => {
+            fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'IN_ANALYSIS' })
+            }).catch(console.error);
+          }, 2000);
+        }
+      })
+      .catch(console.error);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

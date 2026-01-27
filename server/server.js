@@ -166,6 +166,8 @@ app.put('/api/case/:id', async (req, res) => {
     const { id } = req.params;
     const body = req.body; // { formData, status, etc }
 
+    console.log(`📝 UPDATE REQUEST for ${id}:`, JSON.stringify(body, null, 2)); // Debug Log
+
     try {
         const updatedCase = await db.updateCaseData(id, body);
         if (!updatedCase) {
