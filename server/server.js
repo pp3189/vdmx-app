@@ -105,8 +105,8 @@ app.post('/create-checkout-session', async (req, res) => {
                 },
             ],
             mode: 'payment',
-            success_url: `http://localhost:3000/#/dashboard?newCase=${caseId}&pkg=${packageId}&success=true`,
-            cancel_url: `http://localhost:3000/#/checkout/${packageId}?canceled=true`,
+            success_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/#/dashboard?newCase=${caseId}&pkg=${packageId}&success=true`,
+            cancel_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/#/checkout/${packageId}?canceled=true`,
             payment_intent_data: {
                 metadata: {
                     case_id: caseId,

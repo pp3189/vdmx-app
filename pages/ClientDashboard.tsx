@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CaseStatus } from '../types';
 import { PACKAGE_REQUIREMENTS, PACKAGES } from '../constants';
+import { API_BASE_URL } from '../config';
 import { CaseForm } from '../components/CaseForm';
 import { Toast, ToastType } from '../components/Toast';
 
@@ -86,7 +87,7 @@ export const ClientDashboard: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`/api/case/${newCaseId}`);
+        const response = await fetch(`${API_BASE_URL}/api/case/${newCaseId}`);
         if (!response.ok) {
           setError('Caso no encontrado.');
           setIsLoading(false);
@@ -154,7 +155,7 @@ export const ClientDashboard: React.FC = () => {
 
         try {
           // Poll the backend
-          const response = await fetch(`/api/case/${activeCase.id}`);
+          const response = await fetch(`${API_BASE_URL}/api/case/${activeCase.id}`);
           if (response.ok) {
             const data = await response.json();
             if (data.status === 'PAID') {
@@ -178,7 +179,7 @@ export const ClientDashboard: React.FC = () => {
   const handleManualPaymentCheck = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/case/${activeCase?.id}`);
+      const response = await fetch(`${API_BASE_URL}/api/case/${activeCase?.id}`);
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'PAID') {

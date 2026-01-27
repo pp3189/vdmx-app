@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PACKAGES, PACKAGE_REQUIREMENTS } from '../constants';
+import { API_BASE_URL } from '../config';
 
 import { Toast, ToastType } from '../components/Toast';
 
@@ -12,13 +13,13 @@ export const Checkout: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
   if (!selectedPackage) {
-    return <div className="p-20 text-center">Paquete no encontrado.</div>;
+    return <div>Paquete no válido</div>;
   }
 
   const handleCheckout = async () => {
     setIsProcessing(true);
     try {
-      const response = await fetch('/create-checkout-session', {
+      const response = await fetch(`${API_BASE_URL}/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
