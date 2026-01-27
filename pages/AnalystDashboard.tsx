@@ -367,20 +367,66 @@ export const AnalystDashboard: React.FC = () => {
           {selectedCase && activeTab === 'DATA' && (
             <div className="max-w-4xl mx-auto">
               <h2 className="text-2xl font-bold text-white mb-6">Datos Capturados por Cliente</h2>
-              <div className="bg-slate-950 rounded-xl border border-slate-800 p-8">
-                <div className="grid grid-cols-2 gap-8">
-                  {Object.entries(selectedCase.clientData).map(([key, value]) => (
-                    <div key={key}>
-                      <label className="block text-xs uppercase text-slate-500 font-bold mb-1">{key.replace('_', ' ')}</label>
-                      <div className="text-white text-lg border-b border-slate-800 pb-2">{value}</div>
+
+              {/* Lógica para soportar MOCK (clientData) y REAL (formData) */}
+              {(() => {
+                const displayData = selectedCase.formData || selectedCase.clientData || {};
+                const contactInfo = {
+                  nombre: displayData.vendedor_nombre || displayData.propietario_actual || displayData['Nombre del Cliente'] || 'No especificado',
+                  telefono: displayData.vendedor_telefono || displayData.telefono || 'No especificado',
+                  email: displayData.vendedor_email || displayData.email || 'No especificado'
+                };
+
+                return (
+                  <div className="space-y-6">
+                    {/* Tarjeta de Contacto Destacada */}
+                    <div className="bg-slate-800 p-6 rounded-xl border border-yellow-500/30">
+                      <h3 className="text-yellow-500 font-bold uppercase text-sm mb-4 flex items-center gap-2">
+                        <span className="material-symbols-outlined">person</span> Información de Contacto
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Nombre</label>
+                          <div className="text-white font-medium">{contactInfo.nombre}</div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Teléfono</label>
+                          <div className="text-white font-medium flex items-center gap-2">
+                            {contactInfo.telefono}
+                            {contactInfo.telefono !== 'No especificado' && (
+                              <a href={`tel:${contactInfo.telefono}`} className="text-primary hover:text-white text-xs bg-primary/10 px-2 py-1 rounded">Llamar</a>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Correo Electrónico</label>
+                          <div className="text-white font-medium break-all">
+                            {contactInfo.email !== 'No especificado' ? (
+                              <a href={`mailto:${contactInfo.email}`} className="text-primary hover:underline">{contactInfo.email}</a>
+                            ) : contactInfo.email}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-8 bg-yellow-900/20 border border-yellow-900/50 p-4 rounded text-yellow-500 text-sm">
-                  <span className="font-bold mr-2">⚠️ MODO SOLO LECTURA:</span>
-                  Como analista, no puede editar estos datos para mantener la integridad forense del caso.
-                </div>
-              </div>
+
+                    {/* Resto de datos */}
+                    <div className="bg-slate-950 rounded-xl border border-slate-800 p-8">
+                      <div className="grid grid-cols-2 gap-8">
+                        {Object.entries(displayData).map(([key, value]) => (
+                          <div key={key}>
+                            <label className="block text-xs uppercase text-slate-500 font-bold mb-1">{key.replace(/_/g, ' ')}</label>
+                            <div className="text-white text-lg border-b border-slate-800 pb-2">{String(value)}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-8 bg-yellow-900/20 border border-yellow-900/50 p-4 rounded text-yellow-500 text-sm">
+                        <span className="font-bold mr-2">⚠️ MODO SOLO LECTURA:</span>
+                        Como analista, no puede editar estos datos para mantener la integridad forense del caso.
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
