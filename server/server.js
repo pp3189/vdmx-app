@@ -55,7 +55,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
         console.log(`💰 Payment succeeded for Case ${case_id}`);
 
         // Update DB
-        db.updateCaseStatus(case_id, 'PAID');
+        await db.updateCaseStatus(case_id, 'PAID');
     }
 
     res.send();
@@ -78,7 +78,7 @@ app.post('/create-checkout-session', async (req, res) => {
     const caseId = `CASE-${Math.floor(1000 + Math.random() * 9000)}`;
 
     // Save initial Pending Case to DB
-    db.createCase({
+    await db.createCase({
         id: caseId,
         packageId,
         status: 'PAYMENT_PENDING',
@@ -126,8 +126,8 @@ app.post('/create-checkout-session', async (req, res) => {
 });
 
 // Check Case Status
-app.get('/api/case/:id', (req, res) => {
-    const caseData = db.getCase(req.params.id);
+app.get('/api/case/:id', async (req, res) => {
+    const caseData = await db.getCase(req.params.id);
     if (!caseData) {
         return res.status(404).json({ error: 'Case not found' });
     }
