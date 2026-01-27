@@ -119,8 +119,10 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { name: 'propietario_actual', label: 'Nombre del Propietario Actual', type: 'text', required: true, section: 'Documentación' }
     ],
     documents: [
-      { id: 'factura', name: 'Factura Original / Refactura', required: true, section: 'Documentos Vehiculares' },
-      { id: 'tarjeta', name: 'Tarjeta de Circulación', required: true, section: 'Documentos Vehiculares' }
+      { id: 'factura_front', name: 'Factura Original / Refactura (Frente)', required: true, section: 'Documentos Vehiculares' },
+      { id: 'factura_back', name: 'Factura Original / Refactura (Reverso)', required: true, section: 'Documentos Vehiculares' },
+      { id: 'tarjeta_front', name: 'Tarjeta de Circulación (Frente)', required: true, section: 'Documentos Vehiculares' },
+      { id: 'tarjeta_back', name: 'Tarjeta de Circulación (Reverso)', required: true, section: 'Documentos Vehiculares' }
     ]
   },
   'auto-3': { // A3 - Análisis Integral
@@ -176,16 +178,18 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { name: 'monto_renta', label: 'Monto de Renta', type: 'number', required: true, section: 'Arrendamiento' }
     ],
     documents: [
-      { id: 'id_oficial', name: 'Identificación Oficial (Arrendatario)', required: true, section: 'Arrendatario' },
-      { id: 'comp_domicilio', name: 'Comprobante de Domicilio (Arrendatario)', required: true, section: 'Arrendatario' },
-      // Strict 3 months bank statements logic
-      { id: 'edos_cuenta_m1', name: 'Estado de Cuenta (Mes 1)', required: true, section: 'Solvencia Arrendatario' },
-      { id: 'edos_cuenta_m2', name: 'Estado de Cuenta (Mes 2)', required: true, section: 'Solvencia Arrendatario' },
-      { id: 'edos_cuenta_m3', name: 'Estado de Cuenta (Mes 3)', required: true, section: 'Solvencia Arrendatario' },
-      // Payroll optional
-      { id: 'recibos_nomina', name: 'Recibos de Nómina (Solo si es asalariado)', required: false, section: 'Solvencia Arrendatario' },
-      { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Historial Crediticio' }
-    ]
+      documents: [
+        { id: 'id_oficial_front', name: 'Identificación Oficial (Arrendatario - Frente)', required: true, section: 'Arrendatario' },
+        { id: 'id_oficial_back', name: 'Identificación Oficial (Arrendatario - Reverso)', required: true, section: 'Arrendatario' },
+        { id: 'comp_domicilio', name: 'Comprobante de Domicilio (Arrendatario)', required: true, section: 'Arrendatario' },
+        // Strict 3 months bank statements logic
+        { id: 'edos_cuenta_m1', name: 'Estado de Cuenta (Mes 1)', required: true, section: 'Solvencia Arrendatario' },
+        { id: 'edos_cuenta_m2', name: 'Estado de Cuenta (Mes 2)', required: true, section: 'Solvencia Arrendatario' },
+        { id: 'edos_cuenta_m3', name: 'Estado de Cuenta (Mes 3)', required: true, section: 'Solvencia Arrendatario' },
+        // Payroll optional
+        { id: 'recibos_nomina', name: 'Recibos de Nómina (Solo si es asalariado)', required: false, section: 'Solvencia Arrendatario' },
+        { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Historial Crediticio' }
+      ]
   },
   'lease-2': { // R2 - Estándar (Arrendatario + Aval)
     id: 'lease-2',
@@ -209,7 +213,8 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
     ],
     documents: [
       // Tenant Docs (Strict match of R1)
-      { id: 'id_oficial', name: 'Identificación Oficial (Arrendatario)', required: true, section: 'Arrendatario' },
+      { id: 'id_oficial_front', name: 'Identificación Oficial (Arrendatario - Frente)', required: true, section: 'Arrendatario' },
+      { id: 'id_oficial_back', name: 'Identificación Oficial (Arrendatario - Reverso)', required: true, section: 'Arrendatario' },
       { id: 'comp_domicilio', name: 'Comprobante de Domicilio (Arrendatario)', required: true, section: 'Arrendatario' },
       // Strict 3 months bank statements logic for Tenant
       { id: 'edos_cuenta_m1', name: 'Estado de Cuenta (Mes 1 - Arrendatario)', required: true, section: 'Arrendatario' },
@@ -220,7 +225,8 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Arrendatario' },
 
       // Aval Docs (No Bureau)
-      { id: 'aval_id', name: 'Identificación Oficial (Aval)', required: true, section: 'Aval' },
+      { id: 'aval_id_front', name: 'Identificación Oficial (Aval - Frente)', required: true, section: 'Aval' },
+      { id: 'aval_id_back', name: 'Identificación Oficial (Aval - Reverso)', required: true, section: 'Aval' },
       { id: 'aval_domicilio', name: 'Comprobante de Domicilio (Aval)', required: true, section: 'Aval' },
       { id: 'aval_edos', name: 'Estados de Cuenta (Aval - 3 meses)', required: true, section: 'Aval' }
     ]
@@ -253,7 +259,8 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
     ],
     documents: [
       // Tenant Docs (Strict match of R1)
-      { id: 'id_oficial', name: 'Identificación Oficial (Arrendatario)', required: true, section: 'Arrendatario' },
+      { id: 'id_oficial_front', name: 'Identificación Oficial (Arrendatario - Frente)', required: true, section: 'Arrendatario' },
+      { id: 'id_oficial_back', name: 'Identificación Oficial (Arrendatario - Reverso)', required: true, section: 'Arrendatario' },
       { id: 'comp_domicilio', name: 'Comprobante de Domicilio (Arrendatario)', required: true, section: 'Arrendatario' },
       // Strict 3 months bank statements logic for Tenant
       { id: 'edos_cuenta_m1', name: 'Estado de Cuenta (Mes 1 - Arrendatario)', required: true, section: 'Arrendatario' },
@@ -264,12 +271,14 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Arrendatario' },
 
       // Aval Docs (Strict match of R2)
-      { id: 'aval_id', name: 'Identificación Oficial (Aval)', required: true, section: 'Aval' },
+      { id: 'aval_id_front', name: 'Identificación Oficial (Aval - Frente)', required: true, section: 'Aval' },
+      { id: 'aval_id_back', name: 'Identificación Oficial (Aval - Reverso)', required: true, section: 'Aval' },
       { id: 'aval_domicilio', name: 'Comprobante de Domicilio (Aval)', required: true, section: 'Aval' },
       { id: 'aval_edos', name: 'Estados de Cuenta (Aval - 3 meses)', required: true, section: 'Aval' },
 
       // Coobligado Docs
-      { id: 'co_id', name: 'Identificación Oficial (Coobligado)', required: true, section: 'Coobligado' },
+      { id: 'co_id_front', name: 'Identificación Oficial (Coobligado - Frente)', required: true, section: 'Coobligado' },
+      { id: 'co_id_back', name: 'Identificación Oficial (Coobligado - Reverso)', required: true, section: 'Coobligado' },
       { id: 'co_domicilio', name: 'Comprobante de Domicilio (Coobligado)', required: true, section: 'Coobligado' },
       { id: 'co_edos', name: 'Estados de Cuenta (Coobligado - 3 meses)', required: true, section: 'Coobligado' }
     ]
