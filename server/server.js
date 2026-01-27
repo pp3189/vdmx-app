@@ -316,7 +316,10 @@ app.put('/api/case/:id', upload.any(), async (req, res) => {
     // Handle Uploaded Files
     if (req.files && req.files.length > 0) {
         // Use environment variable for base URL, with fallback
-        const baseUrl = process.env.SERVER_URL || process.env.CLIENT_URL || 'https://vdmx-app-production.up.railway.app';
+        // Use environment variable for base URL, with fallback to Railway production URL
+        // CRITICAL FIX: Do NOT use CLIENT_URL here, as it points to the Frontend (Vercel)
+        const baseUrl = process.env.SERVER_URL || 'https://vdmx-app-production.up.railway.app';
+        console.log('🔗 Generating File URLs with base:', baseUrl);
 
         const newDocs = req.files.map(f => ({
             id: f.fieldname,
