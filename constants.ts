@@ -178,18 +178,18 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { name: 'monto_renta', label: 'Monto de Renta', type: 'number', required: true, section: 'Arrendamiento' }
     ],
     documents: [
-      documents: [
-        { id: 'id_oficial_front', name: 'Identificación Oficial (Arrendatario - Frente)', required: true, section: 'Arrendatario' },
-        { id: 'id_oficial_back', name: 'Identificación Oficial (Arrendatario - Reverso)', required: true, section: 'Arrendatario' },
-        { id: 'comp_domicilio', name: 'Comprobante de Domicilio (Arrendatario)', required: true, section: 'Arrendatario' },
-        // Strict 3 months bank statements logic
-        { id: 'edos_cuenta_m1', name: 'Estado de Cuenta (Mes 1)', required: true, section: 'Solvencia Arrendatario' },
-        { id: 'edos_cuenta_m2', name: 'Estado de Cuenta (Mes 2)', required: true, section: 'Solvencia Arrendatario' },
-        { id: 'edos_cuenta_m3', name: 'Estado de Cuenta (Mes 3)', required: true, section: 'Solvencia Arrendatario' },
-        // Payroll optional
-        { id: 'recibos_nomina', name: 'Recibos de Nómina (Solo si es asalariado)', required: false, section: 'Solvencia Arrendatario' },
-        { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Historial Crediticio' }
-      ]
+
+      { id: 'id_oficial_front', name: 'Identificación Oficial (Arrendatario - Frente)', required: true, section: 'Arrendatario' },
+      { id: 'id_oficial_back', name: 'Identificación Oficial (Arrendatario - Reverso)', required: true, section: 'Arrendatario' },
+      { id: 'comp_domicilio', name: 'Comprobante de Domicilio (Arrendatario)', required: true, section: 'Arrendatario' },
+      // Strict 3 months bank statements logic
+      { id: 'edos_cuenta_m1', name: 'Estado de Cuenta (Mes 1)', required: true, section: 'Solvencia Arrendatario' },
+      { id: 'edos_cuenta_m2', name: 'Estado de Cuenta (Mes 2)', required: true, section: 'Solvencia Arrendatario' },
+      { id: 'edos_cuenta_m3', name: 'Estado de Cuenta (Mes 3)', required: true, section: 'Solvencia Arrendatario' },
+      // Payroll optional
+      { id: 'recibos_nomina', name: 'Recibos de Nómina (Solo si es asalariado)', required: false, section: 'Solvencia Arrendatario' },
+      { id: 'buro', name: 'Reporte de Buró de Crédito', required: true, section: 'Historial Crediticio' }
+    ]
   },
   'lease-2': { // R2 - Estándar (Arrendatario + Aval)
     id: 'lease-2',

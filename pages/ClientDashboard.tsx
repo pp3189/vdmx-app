@@ -27,17 +27,23 @@ const validatePackageRules = (pkgId: string, step: 'FORM' | 'DOCS', data: any, f
     }
 
     if (!reqs.skipUpload) {
-      // 3. Critical: auto-3 MUST have Seller ID
-      if (pkgId === 'auto-3' && !files['id_vendedor']) {
-        return { valid: false, message: 'Bloqueo de seguridad: Falta Identificación del Vendedor (Requerido para Auto-3).' };
+      // 3. Critical: auto-3    // Extra Check for A3 (Vendor ID)
+      if (pkgId === 'auto-3') {
+        const hasIdFront = files['id_vendedor_front'];
+        const hasIdBack = files['id_vendedor_back'];
+        if (!hasIdFront || !hasIdBack) {
+          return { valid: false, message: 'Bloqueo de seguridad: Falta Identificación del Vendedor (Frente y Reverso).' };
+        }
       }
 
-      // 4. Critical: Lease-3 MUST have full docs for Co-obligado
-      if (pkgId === 'lease-3' && (!files['co_id'] || !files['co_domicilio'])) {
-        return { valid: false, message: 'Bloqueo de seguridad: Faltan documentos del Coobligado.' };
-      }
-
-      // 5. Standard required check for all documents defined in the package
+      // Extra Check for R3 (Coobligado)
+      if (pkgId === 'lease-3') {
+        const hasCoIdFront = files['co_id_front'];
+        // We don't strictly block for other co_fields as R3 is complex, but ID is critical
+        if (!hasCoIdFront) {
+          return { valid: false, message: 'Bloqueo de seguridad: Faltan documentos del Coobligado.' };
+        }
+      }   // 5. Standard required check for all documents defined in the package
       // This handles explicit "required: false" (optional documents)
       const missingDocs = reqs.documents.filter(d => d.required && !files[d.id]);
       if (missingDocs.length > 0) {
