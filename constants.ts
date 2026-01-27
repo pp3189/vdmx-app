@@ -264,5 +264,13 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { id: 'co_domicilio', name: 'Comprobante de Domicilio (Coobligado)', required: true, section: 'Coobligado' },
       { id: 'co_edos', name: 'Estados de Cuenta (Coobligado - 3 meses)', required: true, section: 'Coobligado' }
     ]
+  },
+  'test-pkg': {
+    id: 'test-pkg',
+    fields: [
+      { name: 'prueba_campo', label: 'Campo de Prueba', type: 'text', required: false, section: 'Prueba' }
+    ],
+    documents: [],
+    skipUpload: true
   }
 };
