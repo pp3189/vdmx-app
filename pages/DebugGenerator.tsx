@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../config';
 export const DebugGenerator: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [adminToken, setAdminToken] = useState(''); // State for admin token
 
     const createTestCase = async () => {
         setLoading(true);
@@ -13,7 +14,8 @@ export const DebugGenerator: React.FC = () => {
             const response = await fetch(`${API_BASE_URL}/api/debug/create-case`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminToken}` // Send token for prod auth
                 }
             });
 
@@ -44,6 +46,19 @@ export const DebugGenerator: React.FC = () => {
                 <p className="text-slate-400 mb-8">
                     Crea un caso "PAGADO" instantáneamente para probar el formulario y la subida de documentos.
                 </p>
+
+                <div className="mb-6 text-left">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        Admin Token (Requerido en Producción)
+                    </label>
+                    <input
+                        type="password"
+                        className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 outline-none transition-colors"
+                        placeholder="Ingrese el token de admin..."
+                        value={adminToken}
+                        onChange={(e) => setAdminToken(e.target.value)}
+                    />
+                </div>
 
                 <button
                     onClick={createTestCase}
