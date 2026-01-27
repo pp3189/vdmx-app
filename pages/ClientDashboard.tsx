@@ -295,9 +295,31 @@ export const ClientDashboard: React.FC = () => {
 
     setFormData(data);
 
+    setFormData(data);
+
+    // PERSIST TO SERVER
+    fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formData: data,
+        status: (requirements?.skipUpload || requirements?.documents.length === 0) ? 'READY_FOR_ANALYSIS' : 'DOCUMENTS_PENDING'
+      })
+    }).catch(console.error);
+
     if (requirements?.skipUpload || requirements?.documents.length === 0) {
       setActiveCase(prev => (prev ? { ...prev, status: 'READY_FOR_ANALYSIS' } : null));
       setTimeout(() => setActiveCase(prev => (prev ? { ...prev, status: 'IN_ANALYSIS' } : null)), 2000);
+
+      // Final Update for auto-transition
+      setTimeout(() => {
+        fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'IN_ANALYSIS' })
+        }).catch(console.error);
+      }, 2000);
+
     } else {
       setActiveCase(prev => (prev ? { ...prev, status: 'DOCUMENTS_PENDING' } : null));
     }

@@ -105,5 +105,29 @@ export const db = {
             }
             return null;
         }
+    },
+    updateCaseData: async (id, partialData) => {
+        if (isProduction) {
+            const res = await pool.query('SELECT data FROM cases WHERE id = $1', [id]);
+            if (res.rows.length === 0) return null;
+
+            const currentData = res.rows[0].data;
+            const newData = { ...currentData, ...partialData, lastUpdated: new Date().toISOString() };
+
+            await pool.query(
+                'UPDATE cases SET data = $1 WHERE id = $2',
+                [newData, id]
+            );
+            return newData;
+        } else {
+            const data = await db.read();
+            const index = data.cases.findIndex(c => c.id === id);
+            if (index !== -1) {
+                data.cases[index] = { ...data.cases[index], ...partialData, lastUpdated: new Date().toISOString() };
+                await db.write(data);
+                return data.cases[index];
+            }
+            return null;
+        }
     }
 };

@@ -161,6 +161,23 @@ app.get('/api/case/:id', async (req, res) => {
     res.json(caseData);
 });
 
+// Update Case Data (Form Submit)
+app.put('/api/case/:id', async (req, res) => {
+    const { id } = req.params;
+    const body = req.body; // { formData, status, etc }
+
+    try {
+        const updatedCase = await db.updateCaseData(id, body);
+        if (!updatedCase) {
+            return res.status(404).json({ error: 'Case not found' });
+        }
+        res.json(updatedCase);
+    } catch (e) {
+        console.error('Update Error:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Admin: Get All Cases
 app.get('/api/admin/cases', async (req, res) => {
     // Basic protection for MVP
