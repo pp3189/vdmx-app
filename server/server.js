@@ -45,7 +45,9 @@ const ALLOWED_ORIGINS = [
     process.env.CLIENT_URL || 'http://localhost:3000',
     'https://vdmx-app-production.up.railway.app',
     'http://localhost:5173', // Vite dev server
-    'https://vdmx-risk-intelligence.vercel.app' // Fallback Vercel URL just in case
+    'https://vdmx-risk-intelligence.vercel.app', // Fallback Vercel URL just in case
+    'https://www.vdmx.mx',
+    'https://vdmx.mx'
 ];
 
 app.use(cors({
