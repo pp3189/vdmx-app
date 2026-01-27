@@ -11,7 +11,7 @@ const app = express();
 // Enable CORS immediately for ALL routes
 app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature']
 }));
 // app.options('*', cors()); // REMOVED: Incompatible with Express 5 (wildcard not supported)
