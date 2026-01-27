@@ -18,6 +18,8 @@ export const Checkout: React.FC = () => {
 
   const handleCheckout = async () => {
     setIsProcessing(true);
+    console.log(`Initiating checkout. API URL: ${API_BASE_URL}/create-checkout-session`); // Debug log
+
     try {
       const response = await fetch(`${API_BASE_URL}/create-checkout-session`, {
         method: 'POST',
@@ -31,16 +33,30 @@ export const Checkout: React.FC = () => {
         }),
       });
 
+      if (!response.ok) {
+        // Try to parse error details
+        const text = await response.text();
+        console.error('API Error Response:', text);
+        try {
+          const data = JSON.parse(text);
+          throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);
+        } catch (e) {
+          throw new Error(`Error del servidor (${response.status}): ${text.slice(0, 50)}...`);
+        }
+      }
+
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        setToast({ message: 'No se pudo iniciar la sesión de pago. Intenta de nuevo.', type: 'error' });
-        setIsProcessing(false);
+        throw new Error('La respuesta del servidor no contenía una URL de redirección.');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setToast({ message: 'Error de conexión. Verifica tu internet y vuelve a intentar.', type: 'error' });
+    } catch (error: any) {
+      console.error('Checkout Error:', error);
+      setToast({
+        message: `Error: ${error.message || 'Verifica tu conexión.'}`,
+        type: 'error'
+      });
       setIsProcessing(false);
     }
   };
