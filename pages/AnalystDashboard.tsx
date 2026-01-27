@@ -371,39 +371,76 @@ export const AnalystDashboard: React.FC = () => {
               {/* Lógica para soportar MOCK (clientData) y REAL (formData) */}
               {(() => {
                 const displayData = selectedCase.formData || selectedCase.clientData || {};
-                const contactInfo = {
-                  nombre: displayData.vendedor_nombre || displayData.propietario_actual || displayData['Nombre del Cliente'] || 'No especificado',
-                  telefono: displayData.vendedor_telefono || displayData.telefono || 'No especificado',
-                  email: displayData.vendedor_email || displayData.email || 'No especificado'
+
+                // Datos del Solicitante (NUEVOS)
+                const requesterInfo = {
+                  nombre: displayData['solicitante_nombre'] || displayData['Nombre del Solicitante (Cliente)'] || 'No especificado',
+                  telefono: displayData['solicitante_telefono'] || displayData['Teléfono de Contacto'] || 'No especificado',
+                  email: displayData['solicitante_email'] || displayData['Correo Electrónico'] || 'No especificado'
+                };
+
+                // Datos del Investigado/Vendedor (EXISTENTES) - Mapeo Robust
+                const targetInfo = {
+                  nombre: displayData['vendedor_nombre'] || displayData['propietario_actual'] || displayData['nombre'] || displayData['Nombre del Vendedor'] || displayData['Nombre Completo'] || 'No especificado',
+                  telefono: displayData['vendedor_telefono'] || displayData['telefono'] || displayData['Teléfono del Vendedor'] || 'No especificado',
+                  email: displayData['vendedor_email'] || displayData['email'] || displayData['Correo del Vendedor'] || 'No especificado'
                 };
 
                 return (
                   <div className="space-y-6">
-                    {/* Tarjeta de Contacto Destacada */}
-                    <div className="bg-slate-800 p-6 rounded-xl border border-yellow-500/30">
-                      <h3 className="text-yellow-500 font-bold uppercase text-sm mb-4 flex items-center gap-2">
-                        <span className="material-symbols-outlined">person</span> Información de Contacto
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                          <label className="block text-xs text-slate-400 mb-1">Nombre</label>
-                          <div className="text-white font-medium">{contactInfo.nombre}</div>
-                        </div>
-                        <div>
-                          <label className="block text-xs text-slate-400 mb-1">Teléfono</label>
-                          <div className="text-white font-medium flex items-center gap-2">
-                            {contactInfo.telefono}
-                            {contactInfo.telefono !== 'No especificado' && (
-                              <a href={`tel:${contactInfo.telefono}`} className="text-primary hover:text-white text-xs bg-primary/10 px-2 py-1 rounded">Llamar</a>
-                            )}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* 🔵 Tarjeta A: Solicitante (Cliente) */}
+                      <div className="bg-slate-800 p-6 rounded-xl border border-blue-500/30 shadow-lg shadow-blue-900/10">
+                        <h3 className="text-blue-400 font-bold uppercase text-sm mb-4 flex items-center gap-2 border-b border-blue-500/20 pb-2">
+                          <span className="material-symbols-outlined">assignment_ind</span> Datos del Solicitante (Cliente)
+                        </h3>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Nombre</label>
+                            <div className="text-white font-medium text-lg">{requesterInfo.nombre}</div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Teléfono</label>
+                              <div className="text-white font-medium flex items-center gap-2">
+                                {requesterInfo.telefono}
+                                {requesterInfo.telefono !== 'No especificado' && (
+                                  <a href={`tel:${requesterInfo.telefono}`} className="text-blue-400 hover:text-white bg-blue-500/10 p-1 rounded transition-colors"><span className="material-symbols-outlined text-sm">call</span></a>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Email</label>
+                              <div className="text-white font-medium break-all text-sm">{requesterInfo.email}</div>
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <label className="block text-xs text-slate-400 mb-1">Correo Electrónico</label>
-                          <div className="text-white font-medium break-all">
-                            {contactInfo.email !== 'No especificado' ? (
-                              <a href={`mailto:${contactInfo.email}`} className="text-primary hover:underline">{contactInfo.email}</a>
-                            ) : contactInfo.email}
+                      </div>
+
+                      {/* 🟠 Tarjeta B: Investigado (Vendedor/Arrendatario) */}
+                      <div className="bg-slate-800 p-6 rounded-xl border border-yellow-500/30 shadow-lg shadow-yellow-900/10">
+                        <h3 className="text-yellow-500 font-bold uppercase text-sm mb-4 flex items-center gap-2 border-b border-yellow-500/20 pb-2">
+                          <span className="material-symbols-outlined">person_search</span> Datos del Investigado / Vendedor
+                        </h3>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Nombre / Propietario</label>
+                            <div className="text-white font-medium text-lg">{targetInfo.nombre}</div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Teléfono</label>
+                              <div className="text-white font-medium flex items-center gap-2">
+                                {targetInfo.telefono}
+                                {targetInfo.telefono !== 'No especificado' && (
+                                  <a href={`tel:${targetInfo.telefono}`} className="text-yellow-400 hover:text-white bg-yellow-500/10 p-1 rounded transition-colors"><span className="material-symbols-outlined text-sm">call</span></a>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Email</label>
+                              <div className="text-white font-medium break-all text-sm">{targetInfo.email}</div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -412,12 +449,15 @@ export const AnalystDashboard: React.FC = () => {
                     {/* Resto de datos */}
                     <div className="bg-slate-950 rounded-xl border border-slate-800 p-8">
                       <div className="grid grid-cols-2 gap-8">
-                        {Object.entries(displayData).map(([key, value]) => (
-                          <div key={key}>
-                            <label className="block text-xs uppercase text-slate-500 font-bold mb-1">{key.replace(/_/g, ' ')}</label>
-                            <div className="text-white text-lg border-b border-slate-800 pb-2">{String(value)}</div>
-                          </div>
-                        ))}
+                        {Object.entries(displayData).map(([key, value]) => {
+                          if (['solicitante_nombre', 'solicitante_telefono', 'solicitante_email', 'vendedor_nombre', 'vendedor_telefono', 'vendedor_email'].includes(key)) return null;
+                          return (
+                            <div key={key}>
+                              <label className="block text-xs uppercase text-slate-500 font-bold mb-1">{key.replace(/_/g, ' ')}</label>
+                              <div className="text-white text-lg border-b border-slate-800 pb-2">{String(value)}</div>
+                            </div>
+                          );
+                        })}
                       </div>
                       <div className="mt-8 bg-yellow-900/20 border border-yellow-900/50 p-4 rounded text-yellow-500 text-sm">
                         <span className="font-bold mr-2">⚠️ MODO SOLO LECTURA:</span>
