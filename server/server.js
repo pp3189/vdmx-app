@@ -8,6 +8,19 @@ dotenv.config();
 
 const app = express();
 
+// Enable CORS immediately for ALL routes
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature']
+}));
+app.options('*', cors()); // Handle preflight for all routes
+
+// Health Check
+app.get('/', (req, res) => {
+    res.send('✅ API is operational (VDMX Risk Intelligence)');
+});
+
 // Validate Environment Variables
 if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('sk_test_...')) {
     console.error('❌ FATAL ERROR: STRIPE_SECRET_KEY is missing or invalid in .env');
@@ -61,7 +74,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     res.send();
 });
 
-app.use(cors());
+// app.use(cors()); // Moved to top
 app.use(express.json());
 
 // Create Checkout Session
