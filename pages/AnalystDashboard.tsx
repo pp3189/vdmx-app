@@ -379,11 +379,26 @@ export const AnalystDashboard: React.FC = () => {
                       </div>
                       <span className="text-xs font-mono text-slate-500">{doc.size}</span>
                     </div>
-                    <h3 className="font-bold text-white mb-1 group-hover:text-primary transition-colors">{doc.name}</h3>
+                    <h3 className="font-bold text-white mb-1 group-hover:text-primary transition-colors">
+                      {doc.url ? (
+                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{doc.name}</a>
+                      ) : doc.name}
+                    </h3>
                     <p className="text-xs text-slate-500 mb-4">Cargado: {doc.date}</p>
-                    <button className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-sm font-medium rounded-lg text-slate-300 transition-colors">
-                      Visualizar
-                    </button>
+                    {doc.url ? (
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-center w-full py-2 bg-primary hover:bg-blue-600 text-sm font-medium rounded-lg text-white transition-colors"
+                      >
+                        Visualizar
+                      </a>
+                    ) : (
+                      <button disabled className="w-full py-2 bg-slate-900 text-sm font-medium rounded-lg text-slate-500 cursor-not-allowed">
+                        No Disponible
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
