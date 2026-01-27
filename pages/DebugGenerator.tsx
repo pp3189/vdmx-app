@@ -9,15 +9,26 @@ export const DebugGenerator: React.FC = () => {
     const createTestCase = async () => {
         setLoading(true);
         try {
+            console.log(`Connecting to: ${API_BASE_URL}/api/debug/create-case`);
             const response = await fetch(`${API_BASE_URL}/api/debug/create-case`, {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`Server Error ${response.status}: ${text}`);
+            }
+
             const data = await response.json();
 
             // Redirect to dashboard with the new case
             navigate(`/dashboard?newCase=${data.id}`);
-        } catch (e) {
-            alert('Error creating test case');
+        } catch (e: any) {
+            console.error('Debug Gen Error:', e);
+            alert(`Error: ${e.message || 'Error de conexión'}`);
             setLoading(false);
         }
     };
