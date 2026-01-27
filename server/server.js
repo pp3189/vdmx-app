@@ -215,10 +215,8 @@ app.put('/api/case/:id', upload.any(), async (req, res) => {
 
     // Handle Uploaded Files
     if (req.files && req.files.length > 0) {
-        // Construct dynamic base URL
-        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-        const host = req.get('host');
-        const baseUrl = `${protocol}://${host}`;
+        // Force Production URL for reliability
+        const baseUrl = 'https://vdmx-app-production.up.railway.app';
 
         const newDocs = req.files.map(f => ({
             id: f.fieldname,
