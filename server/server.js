@@ -14,7 +14,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature']
 }));
-app.options('*', cors()); // Handle preflight for all routes
+// app.options('*', cors()); // REMOVED: Incompatible with Express 5 (wildcard not supported)
 
 // Health Check
 app.get('/', (req, res) => {
