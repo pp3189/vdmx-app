@@ -7,6 +7,11 @@ import path from 'path';
 import fs from 'fs';
 import { db } from './db.js';
 
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
 
 const app = express();
@@ -73,8 +78,23 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Serve Uploaded Files (Explicit CORS)
-app.use('/uploads', cors(), express.static(UPLOAD_DIR));
+// Serve Uploaded Files (Manual Route for Debugging)
+// app.use('/uploads', cors(), express.static(UPLOAD_DIR)); 
+
+app.get('/uploads/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(UPLOAD_DIR, filename);
+
+    console.log(`📂 Requesting file: ${filename}`);
+    console.log(`   Resolved Path: ${filePath}`);
+
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        console.error(`❌ File not found at: ${filePath}`);
+        res.status(404).send(`File not found: ${filename}`);
+    }
+});
 
 // Debug: List Uploaded Files
 app.get('/api/debug/uploads', (req, res) => {
