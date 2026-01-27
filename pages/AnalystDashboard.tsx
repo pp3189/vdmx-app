@@ -93,23 +93,41 @@ export const AnalystDashboard: React.FC = () => {
   // Score State
   const [scores, setScores] = useState<Record<string, number>>({});
 
-  // Login Handler
-  const handleLogin = (e: React.FormEvent) => {
+  // Cases State (moved before handleLogin to fix scope)
+  const [realCases, setRealCases] = useState<any[]>([]);
+  const [adminToken, setAdminToken] = useState<string>('');
+
+  // Login Handler - Now validates against backend
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (credentials.user === 'admin' && credentials.pass === 'admin') {
-      setIsLoggedIn(true);
-      fetchCases(); // Fetch real data on login
-    } else {
-      alert('Credenciales inválidas (Use: admin/admin)');
+
+    // For MVP: Use the admin token stored securely on backend
+    // The frontend sends credentials, backend validates them
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cases`, {
+        headers: {
+          'Authorization': `Bearer ${credentials.pass}` // Use password as token
+        }
+      });
+
+      if (response.ok) {
+        setIsLoggedIn(true);
+        const data = await response.json();
+        setRealCases(data);
+      } else {
+        alert('Credenciales inválidas. Configure ADMIN_SECRET_TOKEN en el servidor.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Error de conexión al servidor.');
     }
   };
 
-  const [realCases, setRealCases] = useState<any[]>([]);
-
   const fetchCases = async () => {
     try {
+      const token = credentials.pass || adminToken;
       const response = await fetch(`${API_BASE_URL}/api/admin/cases`, {
-        headers: { 'Authorization': 'Bearer admin-secret-123' }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         const data = await response.json();
@@ -193,7 +211,7 @@ export const AnalystDashboard: React.FC = () => {
               Iniciar Sesión
             </button>
             <p className="text-center text-xs text-slate-600 mt-4">
-              Sistema monitoreado. Acceso exclusivo para personal autorizado de VDMX.
+              Ingrese el token de admin configurado en ADMIN_SECRET_TOKEN del servidor.
             </p>
           </form>
         </div>

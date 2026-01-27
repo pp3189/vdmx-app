@@ -175,6 +175,10 @@ export const ClientDashboard: React.FC = () => {
           }
         } catch (e) {
           console.error("Polling error:", e);
+          // Si hay demasiados errores, mostrar notificación
+          if (attempts > 4) {
+            console.warn('Múltiples errores de polling, considere verificar manualmente');
+          }
         }
       }, 2000);
 
@@ -301,8 +305,6 @@ export const ClientDashboard: React.FC = () => {
 
     setFormData(data);
 
-    setFormData(data);
-
     // PERSIST TO SERVER
     fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
       method: 'PUT',
@@ -377,7 +379,7 @@ export const ClientDashboard: React.FC = () => {
     // -----------------------------------------
 
     // Construct Metadata for Server (MVP: Not uploading binaries yet, just metadata)
-    const docMetadata = Object.entries(uploadedFiles).map(([key, file]) => ({
+    const docMetadata = Object.entries(uploadedFiles).map(([key, file]: [string, File]) => ({
       id: key,
       name: file.name,
       size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
@@ -396,7 +398,7 @@ export const ClientDashboard: React.FC = () => {
     }));
 
     // Append Actual Files
-    Object.entries(uploadedFiles).forEach(([key, file]) => {
+    Object.entries(uploadedFiles).forEach(([key, file]: [string, File]) => {
       formDataPayload.append(key, file);
     });
 

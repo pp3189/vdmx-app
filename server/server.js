@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { db } from './db.js';
 
 import { fileURLToPath } from 'url';
@@ -16,9 +18,40 @@ dotenv.config();
 
 const app = express();
 
-// Enable CORS immediately for ALL routes
+// Security: Set security headers
+app.use(helmet({
+    contentSecurityPolicy: false, // Disable for development/API compatibility
+    crossOriginEmbedderPolicy: false
+}));
+
+// Security: Rate limiting to prevent DoS attacks
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false
+});
+app.use(limiter);
+
+
+// CORS Configuration - Restrict to allowed origins
+const ALLOWED_ORIGINS = [
+    process.env.CLIENT_URL || 'http://localhost:3000',
+    'https://vdmx-app-production.up.railway.app',
+    'http://localhost:5173' // Vite dev server
+];
+
 app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        if (ALLOWED_ORIGINS.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature']
 }));
@@ -73,31 +106,63 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        // Sanitize original filename to prevent path traversal
+        const safeExt = path.extname(file.originalname).replace(/[^a-zA-Z0-9.]/g, '');
+        cb(null, file.fieldname + '-' + uniqueSuffix + safeExt);
     }
 });
-const upload = multer({ storage: storage });
+
+// File upload with validation
+const ALLOWED_MIMETYPES = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: MAX_FILE_SIZE },
+    fileFilter: (req, file, cb) => {
+        if (ALLOWED_MIMETYPES.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}`), false);
+        }
+    }
+});
 
 // Serve Uploaded Files (Manual Route for Debugging)
 // app.use('/uploads', cors(), express.static(UPLOAD_DIR)); 
 
 app.get('/uploads/:filename', (req, res) => {
     const filename = req.params.filename;
-    const filePath = path.join(UPLOAD_DIR, filename);
 
-    console.log(`📂 Requesting file: ${filename}`);
+    // SECURITY: Prevent path traversal attacks
+    const sanitizedFilename = path.basename(filename);
+    if (sanitizedFilename !== filename || filename.includes('..')) {
+        console.error(`⚠️ SECURITY: Path traversal attempt blocked: ${filename}`);
+        return res.status(400).send('Invalid filename');
+    }
+
+    const filePath = path.join(UPLOAD_DIR, sanitizedFilename);
+
+    console.log(`📂 Requesting file: ${sanitizedFilename}`);
     console.log(`   Resolved Path: ${filePath}`);
 
     if (fs.existsSync(filePath)) {
         res.sendFile(filePath);
     } else {
         console.error(`❌ File not found at: ${filePath}`);
-        res.status(404).send(`File not found: ${filename}`);
+        res.status(404).send(`File not found: ${sanitizedFilename}`);
     }
 });
 
-// Debug: List Uploaded Files
+// Debug: List Uploaded Files (Protected - only in development or with admin auth)
 app.get('/api/debug/uploads', (req, res) => {
+    // Require admin auth in production
+    const adminToken = process.env.ADMIN_SECRET_TOKEN || 'admin-secret-123';
+    const authHeader = req.headers['authorization'];
+    if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${adminToken}`) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     try {
         const files = fs.readdirSync(UPLOAD_DIR);
         res.json({
@@ -235,8 +300,8 @@ app.put('/api/case/:id', upload.any(), async (req, res) => {
 
     // Handle Uploaded Files
     if (req.files && req.files.length > 0) {
-        // Force Production URL for reliability
-        const baseUrl = 'https://vdmx-app-production.up.railway.app';
+        // Use environment variable for base URL, with fallback
+        const baseUrl = process.env.SERVER_URL || process.env.CLIENT_URL || 'https://vdmx-app-production.up.railway.app';
 
         const newDocs = req.files.map(f => ({
             id: f.fieldname,
@@ -271,8 +336,15 @@ app.put('/api/case/:id', upload.any(), async (req, res) => {
     }
 });
 
-// Debug: Create Test Case (Bypass Payment)
+// Debug: Create Test Case (Protected - blocks payment bypass in production)
 app.post('/api/debug/create-case', async (req, res) => {
+    // Require admin auth in production to prevent payment bypass
+    const adminToken = process.env.ADMIN_SECRET_TOKEN || 'admin-secret-123';
+    const authHeader = req.headers['authorization'];
+    if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${adminToken}`) {
+        return res.status(401).json({ error: 'Unauthorized - Debug endpoint protected in production' });
+    }
+
     const caseId = `CASE-TEST-${Math.floor(1000 + Math.random() * 9000)}`;
     const packageId = 'auto-3'; // Force 'Análisis Integral' for realistic testing
 
@@ -291,11 +363,12 @@ app.post('/api/debug/create-case', async (req, res) => {
     res.json({ id: caseId });
 });
 
-// Admin: Get All Cases
+// Admin: Get All Cases (Protected with environment variable token)
 app.get('/api/admin/cases', async (req, res) => {
-    // Basic protection for MVP
+    // Use environment variable for admin token with fallback for development
+    const adminToken = process.env.ADMIN_SECRET_TOKEN || 'admin-secret-123';
     const authHeader = req.headers['authorization'];
-    if (authHeader !== 'Bearer admin-secret-123') {
+    if (authHeader !== `Bearer ${adminToken}`) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
