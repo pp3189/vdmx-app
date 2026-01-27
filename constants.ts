@@ -131,6 +131,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { name: 'marca', label: 'Marca', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'modelo', label: 'Modelo', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'anio', label: 'Año', type: 'number', required: true, section: 'Datos del Vehículo' },
+      { name: 'version', label: 'Versión (ej. XLE, Sport)', type: 'text', required: true, section: 'Datos del Vehículo' },
+      { name: 'color', label: 'Color', type: 'text', required: true, section: 'Datos del Vehículo' },
+      { name: 'kilometraje', label: 'Kilometraje Actual', type: 'number', required: true, section: 'Datos del Vehículo' },
       { name: 'tipo_factura', label: 'Tipo de Factura', type: 'select', required: true, options: ['Factura de Origen', 'Refactura', 'Factura de Aseguradora'], section: 'Documentación' },
       { name: 'propietario_actual', label: 'Nombre del Propietario Actual', type: 'text', required: true, section: 'Documentación' },
       { name: 'vendedor_nombre', label: 'Nombre del Vendedor', type: 'text', required: true, section: 'Datos del Vendedor' },
@@ -139,7 +142,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { name: 'precio', label: 'Precio Solicitado', type: 'number', required: true, section: 'Transacción' }
     ],
     documents: [
-      { id: 'factura', name: 'Factura Original / Refactura', required: true, section: 'Documentos Vehiculares' },
+      { id: 'factura', name: 'Factura Original / Refactura Principal', required: true, section: 'Documentos Vehiculares' },
+      { id: 'factura_2', name: 'Factura Adicional / Endoso (Opcional)', required: false, section: 'Documentos Vehiculares' },
+      { id: 'factura_3', name: 'Factura Adicional (Opcional)', required: false, section: 'Documentos Vehiculares' },
       { id: 'tarjeta', name: 'Tarjeta de Circulación', required: true, section: 'Documentos Vehiculares' },
       { id: 'id_vendedor', name: 'Identificación Oficial del Vendedor', required: true, section: 'Identidad Vendedor' }
     ]
