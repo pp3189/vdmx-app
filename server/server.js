@@ -18,6 +18,9 @@ dotenv.config();
 
 const app = express();
 
+// Required for Railway/Heroku (Load Balancers) to work with rate-limit
+app.set('trust proxy', 1);
+
 // Security: Set security headers
 app.use(helmet({
     contentSecurityPolicy: false, // Disable for development/API compatibility
@@ -30,7 +33,9 @@ const limiter = rateLimit({
     max: 100, // Limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    // Fix for Railway/Load Balancers where IP might be in X-Forwarded-For
+    validate: { xForwardedForHeader: false }
 });
 app.use(limiter);
 
@@ -39,17 +44,25 @@ app.use(limiter);
 const ALLOWED_ORIGINS = [
     process.env.CLIENT_URL || 'http://localhost:3000',
     'https://vdmx-app-production.up.railway.app',
-    'http://localhost:5173' // Vite dev server
+    'http://localhost:5173', // Vite dev server
+    'https://vdmx-risk-intelligence.vercel.app' // Fallback Vercel URL just in case
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
+
+        // Allow ANY localhost origin in development (fixes port mismatches like 5173 vs 5174)
+        if (origin.startsWith('http://localhost:')) {
+            return callback(null, true);
+        }
+
         if (ALLOWED_ORIGINS.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            console.warn(`⚠️ BLOCKED BY CORS: ${origin}`);
+            callback(new Error(`Not allowed by CORS: ${origin}`));
         }
     },
     methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
