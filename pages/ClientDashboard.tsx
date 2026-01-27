@@ -379,13 +379,25 @@ export const ClientDashboard: React.FC = () => {
     }));
 
     // PERSIST TO SERVER (Chain updates to prevent race conditions)
+    // Create FormData for File Upload
+    const formDataPayload = new FormData();
+
+    // Append Metadata as JSON string
+    formDataPayload.append('data', JSON.stringify({
+      status: 'READY_FOR_ANALYSIS',
+      // Also send metadata for the UI immediately
+      documents: docMetadata
+    }));
+
+    // Append Actual Files
+    Object.entries(uploadedFiles).forEach(([key, file]) => {
+      formDataPayload.append(key, file);
+    });
+
     fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        status: 'READY_FOR_ANALYSIS',
-        documents: docMetadata
-      })
+      // Do NOT set Content-Type header for FormData, browser sets it with boundary
+      body: formDataPayload
     })
       .then(() => {
         // Only trigger the next status update AFTER the first one succeeds

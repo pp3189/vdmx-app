@@ -2,6 +2,10 @@ import express from 'express';
 import Stripe from 'stripe';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import dotenv from 'dotenv';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import { db } from './db.js';
 
 dotenv.config();
@@ -52,6 +56,27 @@ const PRICES = {
     'lease-3': 299900,
     'test-pkg': 1000 // $10.00 MXN (Stripe minimum is approx $10 MXN)
 };
+
+// --- FILE UPLOAD SETUP ---
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR);
+}
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, UPLOAD_DIR);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
+// Serve Uploaded Files
+app.use('/uploads', express.static(UPLOAD_DIR));
+// -------------------------
 
 // Webhook requires raw body
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -161,12 +186,42 @@ app.get('/api/case/:id', async (req, res) => {
     res.json(caseData);
 });
 
-// Update Case Data (Form Submit)
-app.put('/api/case/:id', async (req, res) => {
+// Update Case Data (Form Submit & File Upload)
+app.put('/api/case/:id', upload.any(), async (req, res) => {
     const { id } = req.params;
-    const body = req.body; // { formData, status, etc }
+    let body = req.body;
 
-    console.log(`📝 UPDATE REQUEST for ${id}:`, JSON.stringify(body, null, 2)); // Debug Log
+    // Handle JSON parsing if mixed content
+    if (body.data) {
+        try {
+            body = JSON.parse(body.data);
+        } catch (e) { console.error("JSON Parse Error", e); }
+    }
+
+    console.log(`📝 UPDATE REQUEST for ${id}:`, JSON.stringify(body, null, 2));
+
+    // Handle Uploaded Files
+    if (req.files && req.files.length > 0) {
+        const newDocs = req.files.map(f => ({
+            id: f.fieldname,
+            name: f.originalname,
+            url: `${process.env.API_BASE_URL || 'https://vdmx-app-production.up.railway.app'}/uploads/${f.filename}`,
+            size: `${(f.size / 1024 / 1024).toFixed(2)} MB`,
+            date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
+        }));
+
+        // Merge with existing docs logic would be here, but for now we append/replace
+        // For MVP, if clean list is sent, we use that. 
+        // We attach the URL to the document metadata
+        if (body.documents) {
+            body.documents = body.documents.map(d => {
+                const file = newDocs.find(f => f.id === d.id);
+                return file ? { ...d, url: file.url } : d;
+            });
+        } else {
+            body.documents = newDocs;
+        }
+    }
 
     try {
         const updatedCase = await db.updateCaseData(id, body);
