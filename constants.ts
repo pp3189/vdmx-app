@@ -142,11 +142,23 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
       { name: 'precio', label: 'Precio Solicitado', type: 'number', required: true, section: 'Transacción' }
     ],
     documents: [
-      { id: 'factura', name: 'Factura Original / Refactura Principal', required: true, section: 'Documentos Vehiculares' },
-      { id: 'factura_2', name: 'Factura Adicional / Endoso (Opcional)', required: false, section: 'Documentos Vehiculares' },
-      { id: 'factura_3', name: 'Factura Adicional (Opcional)', required: false, section: 'Documentos Vehiculares' },
-      { id: 'tarjeta', name: 'Tarjeta de Circulación', required: true, section: 'Documentos Vehiculares' },
-      { id: 'id_vendedor', name: 'Identificación Oficial del Vendedor', required: true, section: 'Identidad Vendedor' }
+      // Factura Principal
+      { id: 'factura_front', name: 'Factura Original / Refactura (Frente)', required: true, section: 'Factura Principal' },
+      { id: 'factura_back', name: 'Factura Original / Refactura (Reverso/Endosos)', required: true, section: 'Factura Principal' },
+
+      // Facturas Adicionales (Opcionales)
+      { id: 'factura_2_front', name: 'Factura Adicional 1 (Frente)', required: false, section: 'Facturas Adicionales' },
+      { id: 'factura_2_back', name: 'Factura Adicional 1 (Reverso)', required: false, section: 'Facturas Adicionales' },
+      { id: 'factura_3_front', name: 'Factura Adicional 2 (Frente)', required: false, section: 'Facturas Adicionales' },
+      { id: 'factura_3_back', name: 'Factura Adicional 2 (Reverso)', required: false, section: 'Facturas Adicionales' },
+
+      // Tarjeta Circulación
+      { id: 'tarjeta_front', name: 'Tarjeta de Circulación (Frente)', required: true, section: 'Documentos Vehiculares' },
+      { id: 'tarjeta_back', name: 'Tarjeta de Circulación (Reverso)', required: true, section: 'Documentos Vehiculares' },
+
+      // ID Vendedor
+      { id: 'id_vendedor_front', name: 'INE/ID Vendedor (Frente)', required: true, section: 'Identidad Vendedor' },
+      { id: 'id_vendedor_back', name: 'INE/ID Vendedor (Reverso)', required: true, section: 'Identidad Vendedor' }
     ]
   },
   // --- LEASING ---
