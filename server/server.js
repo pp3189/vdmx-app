@@ -22,10 +22,23 @@ app.get('/', (req, res) => {
 });
 
 // Validate Environment Variables
-if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('sk_test_...')) {
-    console.error('❌ FATAL ERROR: STRIPE_SECRET_KEY is missing or invalid in .env');
-    console.error('Please update .env with your actual Stripe API keys.');
-    process.exit(1);
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeKey || stripeKey.includes('sk_test_...')) {
+    console.error('❌ CRITICAL WARNING: STRIPE_SECRET_KEY is missing or invalid in .env');
+    console.error('The server will start, but payments WILL FAIL.');
+    // We do NOT exit here to allow debugging via the health check
+} else {
+    console.log('✅ STRIPE_SECRET_KEY is present');
+}
+
+if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error('⚠️ WARNING: STRIPE_WEBHOOK_SECRET is missing. Webhooks will fail.');
+}
+
+if (!process.env.DATABASE_URL) {
+    console.warn('⚠️ PROD WARNING: DATABASE_URL is missing. Using local JSON file (data will be lost on restart).');
+} else {
+    console.log('✅ DATABASE_URL is present');
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -148,6 +161,8 @@ app.get('/api/case/:id', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
+console.log(`🚀 Attempting to start server on port ${PORT}...`);
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ Server running successfully on port ${PORT}`);
+    console.log(`👉 Health check available at /`);
 });
