@@ -73,8 +73,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Serve Uploaded Files
-app.use('/uploads', express.static(UPLOAD_DIR));
+// Serve Uploaded Files (Explicit CORS)
+app.use('/uploads', cors(), express.static(UPLOAD_DIR));
+
+// Debug: List Uploaded Files
+app.get('/api/debug/uploads', (req, res) => {
+    try {
+        const files = fs.readdirSync(UPLOAD_DIR);
+        res.json({
+            count: files.length,
+            path: UPLOAD_DIR,
+            files: files
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 // -------------------------
 
 // Webhook requires raw body
@@ -201,10 +215,15 @@ app.put('/api/case/:id', upload.any(), async (req, res) => {
 
     // Handle Uploaded Files
     if (req.files && req.files.length > 0) {
+        // Construct dynamic base URL
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+        const host = req.get('host');
+        const baseUrl = `${protocol}://${host}`;
+
         const newDocs = req.files.map(f => ({
             id: f.fieldname,
             name: f.originalname,
-            url: `${process.env.API_BASE_URL || 'https://vdmx-app-production.up.railway.app'}/uploads/${f.filename}`,
+            url: `${baseUrl}/uploads/${f.filename}`,
             size: `${(f.size / 1024 / 1024).toFixed(2)} MB`,
             date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
         }));
