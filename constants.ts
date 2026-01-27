@@ -98,6 +98,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
   'auto-1': { // A1 - Historial Automotriz (SIN DOCUMENTOS)
     id: 'auto-1',
     fields: [
+      { name: 'solicitante_nombre', label: 'Nombre del Solicitante (Cliente)', type: 'text', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_telefono', label: 'Teléfono de Contacto', type: 'tel', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_email', label: 'Correo Electrónico', type: 'email', required: true, section: 'Datos del Solicitante' },
       { name: 'vin', label: 'Número de Serie (VIN)', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'placas', label: 'Placas', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'marca', label: 'Marca', type: 'text', required: true, section: 'Datos del Vehículo' },
@@ -110,6 +113,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
   'auto-2': { // A2 - Revisión Documental
     id: 'auto-2',
     fields: [
+      { name: 'solicitante_nombre', label: 'Nombre del Solicitante (Cliente)', type: 'text', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_telefono', label: 'Teléfono de Contacto', type: 'tel', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_email', label: 'Correo Electrónico', type: 'email', required: true, section: 'Datos del Solicitante' },
       { name: 'vin', label: 'Número de Serie (VIN)', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'placas', label: 'Placas', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'marca', label: 'Marca', type: 'text', required: true, section: 'Datos del Vehículo' },
@@ -128,6 +134,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
   'auto-3': { // A3 - Análisis Integral
     id: 'auto-3',
     fields: [
+      { name: 'solicitante_nombre', label: 'Nombre del Solicitante (Cliente)', type: 'text', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_telefono', label: 'Teléfono de Contacto', type: 'tel', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_email', label: 'Correo Electrónico', type: 'email', required: true, section: 'Datos del Solicitante' },
       { name: 'vin', label: 'Número de Serie (VIN)', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'placas', label: 'Placas', type: 'text', required: true, section: 'Datos del Vehículo' },
       { name: 'marca', label: 'Marca', type: 'text', required: true, section: 'Datos del Vehículo' },
@@ -167,6 +176,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
   'lease-1': { // R1 - Básico
     id: 'lease-1',
     fields: [
+      { name: 'solicitante_nombre', label: 'Nombre del Solicitante (Cliente)', type: 'text', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_telefono', label: 'Teléfono de Contacto', type: 'tel', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_email', label: 'Correo Electrónico', type: 'email', required: true, section: 'Datos del Solicitante' },
       { name: 'nombre', label: 'Nombre Completo', type: 'text', required: true, section: 'Datos del Arrendatario' },
       { name: 'curp', label: 'CURP', type: 'text', required: true, section: 'Datos del Arrendatario' },
       { name: 'rfc', label: 'RFC', type: 'text', required: true, section: 'Datos del Arrendatario' },
@@ -194,6 +206,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
   'lease-2': { // R2 - Estándar (Arrendatario + Aval)
     id: 'lease-2',
     fields: [
+      { name: 'solicitante_nombre', label: 'Nombre del Solicitante (Cliente)', type: 'text', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_telefono', label: 'Teléfono de Contacto', type: 'tel', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_email', label: 'Correo Electrónico', type: 'email', required: true, section: 'Datos del Solicitante' },
       // Tenant (Strict match of R1)
       { name: 'nombre', label: 'Nombre Completo (Arrendatario)', type: 'text', required: true, section: 'Datos del Arrendatario' },
       { name: 'curp', label: 'CURP (Arrendatario)', type: 'text', required: true, section: 'Datos del Arrendatario' },
@@ -234,6 +249,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
   'lease-3': { // R3 - Premium (Arrendatario + Aval + Coobligado)
     id: 'lease-3',
     fields: [
+      { name: 'solicitante_nombre', label: 'Nombre del Solicitante (Cliente)', type: 'text', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_telefono', label: 'Teléfono de Contacto', type: 'tel', required: true, section: 'Datos del Solicitante' },
+      { name: 'solicitante_email', label: 'Correo Electrónico', type: 'email', required: true, section: 'Datos del Solicitante' },
       // Tenant (Strict match of R1/R2)
       { name: 'nombre', label: 'Nombre Completo (Arrendatario)', type: 'text', required: true, section: 'Datos del Arrendatario' },
       { name: 'curp', label: 'CURP (Arrendatario)', type: 'text', required: true, section: 'Datos del Arrendatario' },
