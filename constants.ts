@@ -89,15 +89,7 @@ export const PACKAGES: ServicePackage[] = [
       'Entrega prioritaria (72h)'
     ]
   },
-  {
-    id: 'test-pkg',
-    type: 'LEASING',
-    name: 'Prueba de Sistema (Live)',
-    price: 10,
-    description: 'Paquete temporal para verificación de pagos en producción.',
-    features: ['Prueba de conexión', 'Verificación de Webhook', 'Validación de Base de Datos'],
-    recommended: false
-  }
+
 ];
 
 // Configuration of fields and documents per package
