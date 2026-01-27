@@ -274,7 +274,6 @@ app.put('/api/case/:id', upload.any(), async (req, res) => {
 // Debug: Create Test Case (Bypass Payment)
 app.post('/api/debug/create-case', async (req, res) => {
     const caseId = `CASE-TEST-${Math.floor(1000 + Math.random() * 9000)}`;
-    const caseId = `CASE-TEST-${Math.floor(1000 + Math.random() * 9000)}`;
     const packageId = 'auto-3'; // Force 'Análisis Integral' for realistic testing
 
     const newCase = {
