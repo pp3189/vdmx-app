@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SupportTicket, TicketStatus } from '../types';
 
+import { API_BASE_URL } from '../config';
+
 // --- MOCK DATA ---
 const MOCK_CASE = {
   id: 'CASE-8821',
@@ -24,32 +26,32 @@ const MOCK_CASE = {
 };
 
 const MOCK_TICKETS: SupportTicket[] = [
-  { 
-    ticket_id: 'TCK-001', 
-    case_id: 'CASE-8821', 
-    name: 'Alex Morgan', 
-    email: 'alex.morgan@example.com', 
-    message: 'No puedo subir la factura original, me da error de formato.', 
-    status: 'OPEN', 
-    created_at: '2024-05-21 09:15' 
+  {
+    ticket_id: 'TCK-001',
+    case_id: 'CASE-8821',
+    name: 'Alex Morgan',
+    email: 'alex.morgan@example.com',
+    message: 'No puedo subir la factura original, me da error de formato.',
+    status: 'OPEN',
+    created_at: '2024-05-21 09:15'
   },
-  { 
-    ticket_id: 'TCK-002', 
-    case_id: 'CASE-8821', 
-    name: 'Alex Morgan', 
-    email: 'alex.morgan@example.com', 
-    message: '¿Cuándo estará listo mi reporte? Lo necesito urgente.', 
-    status: 'CLOSED', 
-    created_at: '2024-05-20 14:30' 
+  {
+    ticket_id: 'TCK-002',
+    case_id: 'CASE-8821',
+    name: 'Alex Morgan',
+    email: 'alex.morgan@example.com',
+    message: '¿Cuándo estará listo mi reporte? Lo necesito urgente.',
+    status: 'CLOSED',
+    created_at: '2024-05-20 14:30'
   },
-  { 
-    ticket_id: 'TCK-003', 
-    case_id: 'CASE-9912', 
-    name: 'Maria Diaz', 
-    email: 'maria.d@test.com', 
-    message: 'Error al realizar el pago con tarjeta AMEX.', 
-    status: 'IN_PROGRESS', 
-    created_at: '2024-05-22 10:00' 
+  {
+    ticket_id: 'TCK-003',
+    case_id: 'CASE-9912',
+    name: 'Maria Diaz',
+    email: 'maria.d@test.com',
+    message: 'Error al realizar el pago con tarjeta AMEX.',
+    status: 'IN_PROGRESS',
+    created_at: '2024-05-22 10:00'
   }
 ];
 
@@ -90,14 +92,31 @@ export const AnalystDashboard: React.FC = () => {
 
   // Score State
   const [scores, setScores] = useState<Record<string, number>>({});
-  
+
   // Login Handler
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (credentials.user === 'admin' && credentials.pass === 'admin') {
       setIsLoggedIn(true);
+      fetchCases(); // Fetch real data on login
     } else {
       alert('Credenciales inválidas (Use: admin/admin)');
+    }
+  };
+
+  const [realCases, setRealCases] = useState<any[]>([]);
+
+  const fetchCases = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cases`, {
+        headers: { 'Authorization': 'Bearer admin-secret-123' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setRealCases(data);
+      }
+    } catch (e) {
+      console.error('Error fetching cases', e);
     }
   };
 
@@ -111,7 +130,7 @@ export const AnalystDashboard: React.FC = () => {
       total += val * f.weight;
     });
     // Normalize to 0-1000
-    return Math.round(total * 10); 
+    return Math.round(total * 10);
   };
 
   const finalScore = calculateFinalScore();
@@ -142,10 +161,10 @@ export const AnalystDashboard: React.FC = () => {
 
         <div className="w-full max-w-md bg-slate-950 border border-slate-800 rounded-2xl p-8 shadow-2xl mt-16 md:mt-0 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
-          
+
           <div className="flex flex-col items-center justify-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4">
-               <span className="material-symbols-outlined text-4xl">shield_person</span>
+              <span className="material-symbols-outlined text-4xl">shield_person</span>
             </div>
             <h1 className="text-2xl font-bold text-white">Analyst Hub</h1>
             <p className="text-slate-500 text-sm mt-1">Acceso Seguro</p>
@@ -154,20 +173,20 @@ export const AnalystDashboard: React.FC = () => {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Usuario</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                 value={credentials.user}
-                onChange={e => setCredentials({...credentials, user: e.target.value})}
+                onChange={e => setCredentials({ ...credentials, user: e.target.value })}
               />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Contraseña</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 className="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-lg text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                 value={credentials.pass}
-                onChange={e => setCredentials({...credentials, pass: e.target.value})}
+                onChange={e => setCredentials({ ...credentials, pass: e.target.value })}
               />
             </div>
             <button type="submit" className="w-full py-3 bg-primary hover:bg-blue-600 rounded-lg text-white font-bold transition-all shadow-lg shadow-blue-900/20">
@@ -189,13 +208,13 @@ export const AnalystDashboard: React.FC = () => {
       {/* Header */}
       <header className="bg-slate-950 border-b border-slate-800 h-16 flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-4">
-           {/* Internal Header Logo */}
+          {/* Internal Header Logo */}
           <div className="flex items-center gap-3">
-             <span className="material-symbols-outlined text-primary text-2xl">shield_person</span>
-             <div className="flex flex-col">
-               <span className="font-bold text-white leading-none tracking-widest text-sm">VDMX</span>
-               <span className="text-[0.5rem] font-bold text-slate-500 uppercase tracking-widest">Analyst Hub</span>
-             </div>
+            <span className="material-symbols-outlined text-primary text-2xl">shield_person</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-white leading-none tracking-widest text-sm">VDMX</span>
+              <span className="text-[0.5rem] font-bold text-slate-500 uppercase tracking-widest">Analyst Hub</span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -214,8 +233,8 @@ export const AnalystDashboard: React.FC = () => {
         {selectedCase ? (
           <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col shrink-0">
             <div className="p-6 border-b border-slate-800">
-               <h2 className="text-white font-bold text-lg">{selectedCase.id}</h2>
-               <span className="text-xs font-mono text-slate-500">{selectedCase.serviceType}</span>
+              <h2 className="text-white font-bold text-lg">{selectedCase.id}</h2>
+              <span className="text-xs font-mono text-slate-500">{selectedCase.serviceType}</span>
             </div>
             <nav className="flex-1 p-4 space-y-1">
               {[
@@ -233,11 +252,10 @@ export const AnalystDashboard: React.FC = () => {
                     if (item.id === 'LIST') setSelectedCase(null);
                     else setActiveTab(item.id as Tab);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === item.id && item.id !== 'LIST'
-                      ? 'bg-primary/10 text-primary' 
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === item.id && item.id !== 'LIST'
+                      ? 'bg-primary/10 text-primary'
                       : 'hover:bg-slate-900 text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span className="material-symbols-outlined">{item.icon}</span>
                   {item.label}
@@ -245,17 +263,17 @@ export const AnalystDashboard: React.FC = () => {
               ))}
             </nav>
             <div className="p-4 border-t border-slate-800">
-               <div className="text-xs text-slate-500 mb-2">ESTADO ACTUAL</div>
-               <div className="bg-blue-900/30 text-blue-400 px-3 py-1 rounded text-xs font-bold inline-block border border-blue-900/50">
-                 IN_ANALYSIS
-               </div>
+              <div className="text-xs text-slate-500 mb-2">ESTADO ACTUAL</div>
+              <div className="bg-blue-900/30 text-blue-400 px-3 py-1 rounded text-xs font-bold inline-block border border-blue-900/50">
+                IN_ANALYSIS
+              </div>
             </div>
           </aside>
         ) : null}
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto bg-slate-900 p-8">
-          
+
           {/* VIEW: CASE LIST */}
           {!selectedCase && (
             <div className="max-w-5xl mx-auto">
@@ -272,13 +290,47 @@ export const AnalystDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800">
-                    <tr className="hover:bg-slate-900/50 transition-colors">
-                      <td className="px-6 py-4 font-mono text-white">CASE-8821</td>
+                    {/* REAL DATA RENDERING */}
+                    {realCases.length > 0 ? (
+                      realCases.map((c) => (
+                        <tr key={c.id} className="hover:bg-slate-900/50 transition-colors">
+                          <td className="px-6 py-4 font-mono text-white">{c.id}</td>
+                          <td className="px-6 py-4 text-xs font-bold text-blue-400">{c.serviceType || 'N/A'}</td>
+                          <td className="px-6 py-4 text-sm">{c.packageId || 'Paquete Desconocido'}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-xs px-2 py-1 rounded border ${c.status === 'PAID' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                              }`}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => { setSelectedCase({ ...MOCK_CASE, ...c, clientData: c.formData || {}, documents: [] }); setActiveTab('DATA'); }}
+                              className="text-primary hover:text-white text-sm font-bold"
+                            >
+                              Abrir Caso
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr className="hover:bg-slate-900/50 transition-colors">
+                        <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                          No hay casos reales aún (o cargando...)
+                          <br />
+                          <span className="text-xs">Mostrando Demo Abajo:</span>
+                        </td>
+                      </tr>
+                    )}
+                    {/* DEMO ROW */}
+                    <tr className="hover:bg-slate-900/50 transition-colors opacity-50">
+                      <td className="px-6 py-4 font-mono text-white">CASE-8821 (DEMO)</td>
                       <td className="px-6 py-4 text-xs font-bold text-blue-400">AUTOMOTRIZ</td>
                       <td className="px-6 py-4 text-sm">Revisión Documental</td>
                       <td className="px-6 py-4"><span className="text-xs px-2 py-1 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20">IN_ANALYSIS</span></td>
                       <td className="px-6 py-4">
-                        <button 
+                        <button
                           onClick={() => { setSelectedCase(MOCK_CASE); setActiveTab('DATA'); }}
                           className="text-primary hover:text-white text-sm font-bold"
                         >
@@ -295,23 +347,23 @@ export const AnalystDashboard: React.FC = () => {
 
           {/* VIEW: DATA (Read Only) */}
           {selectedCase && activeTab === 'DATA' && (
-             <div className="max-w-4xl mx-auto">
-                <h2 className="text-2xl font-bold text-white mb-6">Datos Capturados por Cliente</h2>
-                <div className="bg-slate-950 rounded-xl border border-slate-800 p-8">
-                  <div className="grid grid-cols-2 gap-8">
-                    {Object.entries(selectedCase.clientData).map(([key, value]) => (
-                      <div key={key}>
-                        <label className="block text-xs uppercase text-slate-500 font-bold mb-1">{key.replace('_', ' ')}</label>
-                        <div className="text-white text-lg border-b border-slate-800 pb-2">{value}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-8 bg-yellow-900/20 border border-yellow-900/50 p-4 rounded text-yellow-500 text-sm">
-                    <span className="font-bold mr-2">⚠️ MODO SOLO LECTURA:</span>
-                    Como analista, no puede editar estos datos para mantener la integridad forense del caso.
-                  </div>
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-2xl font-bold text-white mb-6">Datos Capturados por Cliente</h2>
+              <div className="bg-slate-950 rounded-xl border border-slate-800 p-8">
+                <div className="grid grid-cols-2 gap-8">
+                  {Object.entries(selectedCase.clientData).map(([key, value]) => (
+                    <div key={key}>
+                      <label className="block text-xs uppercase text-slate-500 font-bold mb-1">{key.replace('_', ' ')}</label>
+                      <div className="text-white text-lg border-b border-slate-800 pb-2">{value}</div>
+                    </div>
+                  ))}
                 </div>
-             </div>
+                <div className="mt-8 bg-yellow-900/20 border border-yellow-900/50 p-4 rounded text-yellow-500 text-sm">
+                  <span className="font-bold mr-2">⚠️ MODO SOLO LECTURA:</span>
+                  Como analista, no puede editar estos datos para mantener la integridad forense del caso.
+                </div>
+              </div>
+            </div>
           )}
 
           {/* VIEW: DOCS */}
@@ -383,13 +435,13 @@ export const AnalystDashboard: React.FC = () => {
                       </label>
                       <span className="font-mono font-bold text-primary">{scores[factor.id] || 0}</span>
                     </div>
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="100" 
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
                       className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary"
                       value={scores[factor.id] || 0}
-                      onChange={(e) => setScores({...scores, [factor.id]: parseInt(e.target.value)})}
+                      onChange={(e) => setScores({ ...scores, [factor.id]: parseInt(e.target.value) })}
                     />
                     <div className="flex justify-between text-xs text-slate-600 mt-1">
                       <span>Riesgo Crítico (0)</span>
@@ -405,22 +457,22 @@ export const AnalystDashboard: React.FC = () => {
           {selectedCase && activeTab === 'REPORT' && (
             <div className="max-w-4xl mx-auto text-center">
               <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-primary">
-                 <span className="material-symbols-outlined text-4xl">verified_user</span>
+                <span className="material-symbols-outlined text-4xl">verified_user</span>
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Generar Reporte Final</h2>
               <p className="text-slate-400 mb-8 max-w-md mx-auto">
                 El sistema generará el PDF con los hallazgos validados y el score calculado de <strong>{finalScore}</strong>.
               </p>
-              
+
               <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto mb-8">
-                 <div className="bg-slate-950 p-4 rounded border border-slate-800">
-                    <div className="text-xs text-slate-500 uppercase font-bold">Estado Crediticio</div>
-                    <div className="text-white">Aprobado</div>
-                 </div>
-                 <div className="bg-slate-950 p-4 rounded border border-slate-800">
-                    <div className="text-xs text-slate-500 uppercase font-bold">Documentación</div>
-                    <div className="text-white">Validada</div>
-                 </div>
+                <div className="bg-slate-950 p-4 rounded border border-slate-800">
+                  <div className="text-xs text-slate-500 uppercase font-bold">Estado Crediticio</div>
+                  <div className="text-white">Aprobado</div>
+                </div>
+                <div className="bg-slate-950 p-4 rounded border border-slate-800">
+                  <div className="text-xs text-slate-500 uppercase font-bold">Documentación</div>
+                  <div className="text-white">Validada</div>
+                </div>
               </div>
 
               <button className="px-8 py-4 bg-primary hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2 mx-auto">
@@ -433,52 +485,51 @@ export const AnalystDashboard: React.FC = () => {
           {/* VIEW: SUPPORT TICKETS */}
           {selectedCase && activeTab === 'SUPPORT' && (
             <div className="max-w-5xl mx-auto">
-               <h2 className="text-2xl font-bold text-white mb-6">Tickets de Soporte</h2>
-               <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
-                 <table className="w-full text-left">
-                   <thead className="bg-slate-900 text-slate-400 text-xs uppercase font-medium">
-                     <tr>
-                       <th className="px-6 py-4">Ticket</th>
-                       <th className="px-6 py-4">Fecha</th>
-                       <th className="px-6 py-4">Mensaje</th>
-                       <th className="px-6 py-4">Estado</th>
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-slate-800">
-                     {tickets.filter(t => t.case_id === selectedCase.id).length === 0 ? (
-                       <tr>
-                         <td colSpan={4} className="px-6 py-8 text-center text-slate-500">No hay tickets asociados a este caso.</td>
-                       </tr>
-                     ) : (
-                       tickets.filter(t => t.case_id === selectedCase.id).map(ticket => (
-                         <tr key={ticket.ticket_id} className="hover:bg-slate-900/50">
-                           <td className="px-6 py-4">
-                             <div className="font-mono text-white text-sm">{ticket.ticket_id}</div>
-                             <div className="text-xs text-slate-500">{ticket.email}</div>
-                           </td>
-                           <td className="px-6 py-4 text-sm text-slate-400">{ticket.created_at}</td>
-                           <td className="px-6 py-4 text-sm text-slate-300 max-w-xs">{ticket.message}</td>
-                           <td className="px-6 py-4">
-                             <select 
-                               value={ticket.status}
-                               onChange={(e) => handleTicketStatusChange(ticket.ticket_id, e.target.value as TicketStatus)}
-                               className={`text-xs font-bold px-2 py-1 rounded border outline-none bg-transparent cursor-pointer ${
-                                 ticket.status === 'OPEN' ? 'text-green-500 border-green-500/30' :
-                                 ticket.status === 'IN_PROGRESS' ? 'text-blue-500 border-blue-500/30' :
-                                 'text-slate-500 border-slate-500/30'
-                               }`}
-                             >
-                               <option value="OPEN" className="bg-slate-900 text-green-500">OPEN</option>
-                               <option value="IN_PROGRESS" className="bg-slate-900 text-blue-500">IN PROGRESS</option>
-                               <option value="CLOSED" className="bg-slate-900 text-slate-500">CLOSED</option>
-                             </select>
-                           </td>
-                         </tr>
-                       ))
-                     )}
-                   </tbody>
-                 </table>
-               </div>
+              <h2 className="text-2xl font-bold text-white mb-6">Tickets de Soporte</h2>
+              <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-900 text-slate-400 text-xs uppercase font-medium">
+                    <tr>
+                      <th className="px-6 py-4">Ticket</th>
+                      <th className="px-6 py-4">Fecha</th>
+                      <th className="px-6 py-4">Mensaje</th>
+                      <th className="px-6 py-4">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {tickets.filter(t => t.case_id === selectedCase.id).length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-8 text-center text-slate-500">No hay tickets asociados a este caso.</td>
+                      </tr>
+                    ) : (
+                      tickets.filter(t => t.case_id === selectedCase.id).map(ticket => (
+                        <tr key={ticket.ticket_id} className="hover:bg-slate-900/50">
+                          <td className="px-6 py-4">
+                            <div className="font-mono text-white text-sm">{ticket.ticket_id}</div>
+                            <div className="text-xs text-slate-500">{ticket.email}</div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-400">{ticket.created_at}</td>
+                          <td className="px-6 py-4 text-sm text-slate-300 max-w-xs">{ticket.message}</td>
+                          <td className="px-6 py-4">
+                            <select
+                              value={ticket.status}
+                              onChange={(e) => handleTicketStatusChange(ticket.ticket_id, e.target.value as TicketStatus)}
+                              className={`text-xs font-bold px-2 py-1 rounded border outline-none bg-transparent cursor-pointer ${ticket.status === 'OPEN' ? 'text-green-500 border-green-500/30' :
+                                  ticket.status === 'IN_PROGRESS' ? 'text-blue-500 border-blue-500/30' :
+                                    'text-slate-500 border-slate-500/30'
+                                }`}
+                            >
+                              <option value="OPEN" className="bg-slate-900 text-green-500">OPEN</option>
+                              <option value="IN_PROGRESS" className="bg-slate-900 text-blue-500">IN PROGRESS</option>
+                              <option value="CLOSED" className="bg-slate-900 text-slate-500">CLOSED</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 

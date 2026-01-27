@@ -161,6 +161,23 @@ app.get('/api/case/:id', async (req, res) => {
     res.json(caseData);
 });
 
+// Admin: Get All Cases
+app.get('/api/admin/cases', async (req, res) => {
+    // Basic protection for MVP
+    const authHeader = req.headers['authorization'];
+    if (authHeader !== 'Bearer admin-secret-123') {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        const data = await db.read();
+        res.json(data.cases);
+    } catch (e) {
+        console.error('Admin Error:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 const PORT = process.env.PORT || 3001;
 console.log(`🚀 Attempting to start server on port ${PORT}...`);
 app.listen(PORT, '0.0.0.0', () => {
