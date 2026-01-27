@@ -270,7 +270,9 @@ export const PACKAGE_REQUIREMENTS: Record<string, PackageRequirement> = {
     fields: [
       { name: 'prueba_campo', label: 'Campo de Prueba', type: 'text', required: false, section: 'Prueba' }
     ],
-    documents: [],
-    skipUpload: true
+    documents: [
+      { id: 'doc_prueba', name: 'Documento de Prueba (PDF/Imagen)', required: true, section: 'Prueba' }
+    ],
+    skipUpload: false
   }
 };

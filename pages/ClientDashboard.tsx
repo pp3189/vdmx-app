@@ -363,7 +363,6 @@ export const ClientDashboard: React.FC = () => {
   const handleFinishUpload = () => {
     if (!activeCase) return;
     // --- SERVER SIDE VALIDATION SIMULATION ---
-    // --- SERVER SIDE VALIDATION SIMULATION ---
     const validation = validatePackageRules(activeCase.packageId, 'DOCS', formData, uploadedFiles);
     if (!validation.valid) {
       setToast({ message: `Validación fallida: ${validation.message}`, type: 'error' });
@@ -371,8 +370,36 @@ export const ClientDashboard: React.FC = () => {
     }
     // -----------------------------------------
 
+    // Construct Metadata for Server (MVP: Not uploading binaries yet, just metadata)
+    const docMetadata = Object.entries(uploadedFiles).map(([key, file]) => ({
+      id: key,
+      name: file.name,
+      size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+      date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
+    }));
+
+    // PERSIST TO SERVER
+    fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'READY_FOR_ANALYSIS',
+        documents: docMetadata
+      })
+    }).catch(console.error);
+
     setActiveCase(prev => (prev ? { ...prev, status: 'READY_FOR_ANALYSIS' } : null));
     setTimeout(() => setActiveCase(prev => (prev ? { ...prev, status: 'IN_ANALYSIS' } : null)), 2000);
+
+    // Final Update for auto-transition
+    setTimeout(() => {
+      fetch(`${API_BASE_URL}/api/case/${activeCase.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'IN_ANALYSIS' })
+      }).catch(console.error);
+    }, 2000);
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
