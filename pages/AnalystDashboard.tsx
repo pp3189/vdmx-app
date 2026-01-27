@@ -253,8 +253,8 @@ export const AnalystDashboard: React.FC = () => {
                     else setActiveTab(item.id as Tab);
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === item.id && item.id !== 'LIST'
-                      ? 'bg-primary/10 text-primary'
-                      : 'hover:bg-slate-900 text-slate-400 hover:text-white'
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-slate-900 text-slate-400 hover:text-white'
                     }`}
                 >
                   <span className="material-symbols-outlined">{item.icon}</span>
@@ -299,14 +299,14 @@ export const AnalystDashboard: React.FC = () => {
                           <td className="px-6 py-4 text-sm">{c.packageId || 'Paquete Desconocido'}</td>
                           <td className="px-6 py-4">
                             <span className={`text-xs px-2 py-1 rounded border ${c.status === 'PAID' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                                'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                              'bg-blue-500/10 text-blue-500 border-blue-500/20'
                               }`}>
                               {c.status}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <button
-                              onClick={() => { setSelectedCase({ ...MOCK_CASE, ...c, clientData: c.formData || {}, documents: [] }); setActiveTab('DATA'); }}
+                              onClick={() => { setSelectedCase({ ...MOCK_CASE, ...c, clientData: c.formData || {}, documents: c.documents || [] }); setActiveTab('DATA'); }}
                               className="text-primary hover:text-white text-sm font-bold"
                             >
                               Abrir Caso
@@ -515,8 +515,8 @@ export const AnalystDashboard: React.FC = () => {
                               value={ticket.status}
                               onChange={(e) => handleTicketStatusChange(ticket.ticket_id, e.target.value as TicketStatus)}
                               className={`text-xs font-bold px-2 py-1 rounded border outline-none bg-transparent cursor-pointer ${ticket.status === 'OPEN' ? 'text-green-500 border-green-500/30' :
-                                  ticket.status === 'IN_PROGRESS' ? 'text-blue-500 border-blue-500/30' :
-                                    'text-slate-500 border-slate-500/30'
+                                ticket.status === 'IN_PROGRESS' ? 'text-blue-500 border-blue-500/30' :
+                                  'text-slate-500 border-slate-500/30'
                                 }`}
                             >
                               <option value="OPEN" className="bg-slate-900 text-green-500">OPEN</option>

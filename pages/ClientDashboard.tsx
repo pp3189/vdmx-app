@@ -605,7 +605,7 @@ export const ClientDashboard: React.FC = () => {
                             }`}>
                             <span className="material-symbols-outlined">cloud_upload</span>
                             Subir Archivo
-                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(doc.id, e)} accept=".pdf,.jpg,.png,.jpeg" />
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(doc.id, e)} accept="application/pdf,image/png,image/jpeg,.pdf,.jpg,.png,.jpeg" />
                           </label>
                         )}
                       </div>
