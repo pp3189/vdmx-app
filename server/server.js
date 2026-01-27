@@ -180,6 +180,26 @@ app.put('/api/case/:id', async (req, res) => {
     }
 });
 
+// Debug: Create Test Case (Bypass Payment)
+app.post('/api/debug/create-case', async (req, res) => {
+    const caseId = `CASE-TEST-${Math.floor(1000 + Math.random() * 9000)}`;
+    const packageId = 'test-pkg';
+
+    const newCase = {
+        id: caseId,
+        packageId,
+        status: 'PAID', // Start as PAID so it goes to Form
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        formData: {},
+        documents: []
+    };
+
+    await db.createCase(newCase);
+    console.log(`🧪 DEBUG: Created Test Case ${caseId}`);
+    res.json({ id: caseId });
+});
+
 // Admin: Get All Cases
 app.get('/api/admin/cases', async (req, res) => {
     // Basic protection for MVP

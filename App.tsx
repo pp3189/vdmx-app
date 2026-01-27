@@ -9,6 +9,7 @@ import { ClientDashboard } from './pages/ClientDashboard';
 import { AnalystDashboard } from './pages/AnalystDashboard';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { Terms } from './pages/Terms';
+import { DebugGenerator } from './pages/DebugGenerator';
 
 const App: React.FC = () => {
   return (
@@ -22,9 +23,10 @@ const App: React.FC = () => {
           <Route path="/dashboard" element={<><Navbar /><ClientDashboard /><Footer /></>} />
           <Route path="/privacy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
           <Route path="/terms" element={<><Navbar /><Terms /><Footer /></>} />
-          
+
           {/* Analyst Dashboard (Standalone Layout) */}
           <Route path="/analyst" element={<AnalystDashboard />} />
+          <Route path="/debug" element={<DebugGenerator />} />
         </Routes>
       </div>
     </Router>
