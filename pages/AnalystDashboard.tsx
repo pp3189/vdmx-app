@@ -344,32 +344,31 @@ return (
               </button>
             ))}
           </nav>
-          <div className="p-4 border-t border-slate-800">
-            <div className="p-4 border-t border-slate-800 space-y-4">
-              <div>
-                <div className="text-xs text-slate-500 mb-2 font-bold uppercase">Estado del Caso</div>
-                <select
-                  value={selectedCase.status}
-                  onChange={(e) => handleUpdateStatus(e.target.value)}
-                  className="w-full bg-slate-900 text-white text-xs border border-slate-700 rounded px-2 py-2 outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="PAYMENT_PENDING">PENDIENTE PAGO</option>
-                  <option value="PAID">PAGADO (Nueva)</option>
-                  <option value="IN_ANALYSIS">EN ANÁLISIS</option>
-                  <option value="WAITING_INFO">ESPERANDO INFO</option>
-                  <option value="COMPLETED">COMPLETADO</option>
-                  <option value="ARCHIVED">ARCHIVADO</option>
-                </select>
-              </div>
-
-              <button
-                onClick={handleDeleteCase}
-                className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded text-xs font-bold transition-all flex items-center justify-center gap-2"
+          <div className="p-4 border-t border-slate-800 space-y-4">
+            <div>
+              <div className="text-xs text-slate-500 mb-2 font-bold uppercase">Estado del Caso</div>
+              <select
+                value={selectedCase.status}
+                onChange={(e) => handleUpdateStatus(e.target.value)}
+                className="w-full bg-slate-900 text-white text-xs border border-slate-700 rounded px-2 py-2 outline-none focus:border-primary cursor-pointer"
               >
-                <span className="material-symbols-outlined text-sm">delete</span>
-                ELIMINAR CASO
-              </button>
+                <option value="PAYMENT_PENDING">PENDIENTE PAGO</option>
+                <option value="PAID">PAGADO (Nueva)</option>
+                <option value="IN_ANALYSIS">EN ANÁLISIS</option>
+                <option value="WAITING_INFO">ESPERANDO INFO</option>
+                <option value="COMPLETED">COMPLETADO</option>
+                <option value="ARCHIVED">ARCHIVADO</option>
+              </select>
             </div>
+
+            <button
+              onClick={handleDeleteCase}
+              className="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded text-xs font-bold transition-all flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">delete</span>
+              ELIMINAR CASO
+            </button>
+          </div>
         </aside>
       ) : null}
 
@@ -401,9 +400,9 @@ return (
                         <td className="px-6 py-4 text-sm">{c.packageId || 'Paquete Desconocido'}</td>
                         <td className="px-6 py-4">
                           <span className={`text-xs px-2 py-1 rounded border font-bold ${c.status === 'PAID' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                              c.status === 'IN_ANALYSIS' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                                c.status === 'COMPLETED' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
-                                  'bg-slate-500/10 text-slate-500 border-slate-500/20'
+                            c.status === 'IN_ANALYSIS' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                              c.status === 'COMPLETED' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
+                                'bg-slate-500/10 text-slate-500 border-slate-500/20'
                             }`}>
                             {c.status}
                           </span>
