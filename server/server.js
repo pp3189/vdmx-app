@@ -67,7 +67,7 @@ app.use(cors({
             callback(new Error(`Not allowed by CORS: ${origin}`));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature']
 }));
 // app.options('*', cors()); // REMOVED: Incompatible with Express 5 (wildcard not supported)
