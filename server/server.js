@@ -381,6 +381,61 @@ app.post('/api/debug/create-case', async (req, res) => {
     res.json({ id: caseId });
 });
 
+// Update Case Status (Patch)
+app.patch('/api/case/:id/status', async (req, res) => {
+    // Require admin auth
+    const adminToken = process.env.ADMIN_SECRET_TOKEN || 'admin-secret-123';
+    const authHeader = req.headers['authorization'];
+    if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${adminToken}`) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+    }
+
+    try {
+        const updatedCase = await db.updateCaseStatus(id, status);
+        if (!updatedCase) {
+            return res.status(404).json({ error: 'Case not found' });
+        }
+        res.json(updatedCase);
+    } catch (e) {
+        console.error('Update Status Error:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Delete Case
+app.delete('/api/case/:id', async (req, res) => {
+    // CRITICAL: Require admin auth always for deletion
+    const adminToken = process.env.ADMIN_SECRET_TOKEN || 'admin-secret-123';
+    const authHeader = req.headers['authorization'];
+
+    // Strict check even in dev/test to be safe with deletions
+    if (authHeader !== `Bearer ${adminToken}`) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+
+    try {
+        const success = await db.deleteCase(id);
+        if (success) {
+            console.log(`🗑️ DELETED Case ${id}`);
+            res.json({ message: 'Case deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Case not found or already deleted' });
+        }
+    } catch (e) {
+        console.error('Delete Error:', e);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Admin: Get All Cases (Protected with environment variable token)
 app.get('/api/admin/cases', async (req, res) => {
     // Use environment variable for admin token with fallback for development

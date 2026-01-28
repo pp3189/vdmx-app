@@ -129,5 +129,20 @@ export const db = {
             }
             return null;
         }
+    },
+    deleteCase: async (id) => {
+        if (isProduction) {
+            await pool.query('DELETE FROM cases WHERE id = $1', [id]);
+            return true;
+        } else {
+            const data = await db.read();
+            const initialLength = data.cases.length;
+            data.cases = data.cases.filter(c => c.id !== id);
+            if (data.cases.length < initialLength) {
+                await db.write(data);
+                return true;
+            }
+            return false;
+        }
     }
 };
