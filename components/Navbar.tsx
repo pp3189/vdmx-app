@@ -25,7 +25,7 @@ export const Navbar: React.FC = () => {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/')}`}>Inicio</Link>
-            <Link to="/services" className={`text-sm font-medium transition-colors ${isActive('/services')}`}>Servicios y Precios</Link>
+            <Link to="/services" className={`text-sm font-medium transition-colors ${isActive('/services')}`}>Automotriz</Link>
             <Link to="/dashboard" className={`text-sm font-medium transition-colors ${isActive('/dashboard')}`}>Mis Casos</Link>
             <Link to="/analyst" className={`text-sm font-medium transition-colors ${isActive('/analyst')}`}>Analyst Hub</Link>
             <Link to="/services" className="px-4 py-2 rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-bold transition-all shadow-lg shadow-blue-500/20">

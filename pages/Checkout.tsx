@@ -72,7 +72,7 @@ export const Checkout: React.FC = () => {
         <div className="grid md:grid-cols-1 gap-8 max-w-lg mx-auto">
           {/* Order Summary */}
           <div className="bg-white dark:bg-cardbg rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-xl">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">Resumen de Compra</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">Solicita una evaluación de riesgo automotriz</h2>
 
             <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-100 dark:border-slate-700">
               <div>
