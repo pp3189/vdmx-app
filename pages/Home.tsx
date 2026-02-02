@@ -8,6 +8,17 @@ export const Home: React.FC = () => {
       <section className="relative overflow-hidden pt-16 pb-32 lg:pt-32">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white dark:from-darkbg dark:to-cardbg -z-10" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+          {/* Vertical Tabs */}
+          <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-12 shadow-inner">
+            <div className="px-6 py-2 rounded-lg bg-white dark:bg-slate-700 text-primary dark:text-blue-400 text-sm font-bold shadow-sm">
+              Riesgo Automotriz
+            </div>
+            <Link to="/arrendamiento" className="px-6 py-2 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">
+              Riesgo Arrendamiento
+            </Link>
+          </div>
+
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary text-xs font-bold uppercase tracking-wider mb-6">
             <span className="material-symbols-outlined text-sm">verified</span>
             Inteligencia de Riesgo Certificada

@@ -25,7 +25,21 @@ export const Navbar: React.FC = () => {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/')}`}>Inicio</Link>
-            <Link to="/services" className={`text-sm font-medium transition-colors ${isActive('/services')}`}>Automotriz</Link>
+
+            {/* Soluciones Dropdown */}
+            <div className="relative group">
+              <button className={`flex items-center gap-1 text-sm font-medium transition-colors ${location.pathname === '/' || location.pathname === '/arrendamiento' ? 'text-primary' : 'text-slate-600 dark:text-slate-300 hover:text-primary'}`}>
+                Soluciones <span className="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-cardbg rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0">
+                <Link to="/" className="block px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium border-b border-slate-50 dark:border-slate-800">
+                  Riesgo Automotriz
+                </Link>
+                <Link to="/arrendamiento" className="block px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium">
+                  Riesgo Arrendamiento
+                </Link>
+              </div>
+            </div>
             <Link to="/dashboard" className={`text-sm font-medium transition-colors ${isActive('/dashboard')}`}>Mis Casos</Link>
             <Link to="/analyst" className={`text-sm font-medium transition-colors ${isActive('/analyst')}`}>Analyst Hub</Link>
             <Link to="/services" className="px-4 py-2 rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-bold transition-all shadow-lg shadow-blue-500/20">

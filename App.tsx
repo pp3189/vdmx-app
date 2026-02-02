@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
+import { LeasingHome } from './pages/LeasingHome';
 import { Pricing } from './pages/Pricing';
 import { Checkout } from './pages/Checkout';
 import { ClientDashboard } from './pages/ClientDashboard';
@@ -18,6 +19,7 @@ const App: React.FC = () => {
         <Routes>
           {/* Routes with Standard Layout */}
           <Route path="/" element={<><Navbar /><Home /><Footer /></>} />
+          <Route path="/arrendamiento" element={<><Navbar /><LeasingHome /><Footer /></>} />
           <Route path="/services" element={<><Navbar /><Pricing /><Footer /></>} />
           <Route path="/checkout/:packageId" element={<><Navbar /><Checkout /><Footer /></>} />
           <Route path="/dashboard" element={<><Navbar /><ClientDashboard /><Footer /></>} />
