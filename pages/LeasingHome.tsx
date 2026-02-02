@@ -1,9 +1,15 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
+import { FeatureCard } from '../components/home/FeatureCard';
+import { TrustSection } from '../components/home/TrustSection';
+import { SEO } from '../components/SEO';
 
 export const LeasingHome: React.FC = () => {
     return (
         <div className="flex flex-col min-h-screen">
+            <SEO
+                title="Riesgo Arrendamiento"
+                description="Evaluación de riesgo para inquilinos. Detectamos ingresos simulados, estados de cuenta falsos e identidad suplantada."
+            />
             {/* Hero Section */}
             <section className="relative overflow-hidden pt-16 pb-32 lg:pt-32">
                 <div className="absolute inset-0 bg-gradient-to-b from-purple-50/50 to-white dark:from-darkbg dark:to-cardbg -z-10" />
@@ -48,30 +54,24 @@ export const LeasingHome: React.FC = () => {
                         <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Riesgos ocultos en inquilinos</h2>
                     </div>
                     <div className="grid md:grid-cols-3 gap-8">
-                        {/* Card 1 */}
-                        <div className="bg-white dark:bg-cardbg p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 text-purple-600 rounded-xl flex items-center justify-center mb-4">
-                                <span className="material-symbols-outlined text-2xl">receipt_long</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Ingresos simulados</h3>
-                            <p className="text-slate-600 dark:text-slate-400">Recibos de nómina editados o alterados digitalmente para aparentar solvencia.</p>
-                        </div>
-                        {/* Card 2 */}
-                        <div className="bg-white dark:bg-cardbg p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-xl flex items-center justify-center mb-4">
-                                <span className="material-symbols-outlined text-2xl">account_balance</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Estados de cuenta falsos</h3>
-                            <p className="text-slate-600 dark:text-slate-400">Documentos bancarios apócrifos imposibles de verificar a simple vista.</p>
-                        </div>
-                        {/* Card 3 */}
-                        <div className="bg-white dark:bg-cardbg p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 text-orange-600 rounded-xl flex items-center justify-center mb-4">
-                                <span className="material-symbols-outlined text-2xl">person_off</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Identidad suplantada</h3>
-                            <p className="text-slate-600 dark:text-slate-400">Uso de identificaciones robadas o alteradas para firmar contratos.</p>
-                        </div>
+                        <FeatureCard
+                            icon="receipt_long"
+                            colorClass="purple"
+                            title="Ingresos simulados"
+                            description="Recibos de nómina editados o alterados digitalmente para aparentar solvencia."
+                        />
+                        <FeatureCard
+                            icon="account_balance"
+                            colorClass="red"
+                            title="Estados de cuenta falsos"
+                            description="Documentos bancarios apócrifos imposibles de verificar a simple vista."
+                        />
+                        <FeatureCard
+                            icon="person_off"
+                            colorClass="orange"
+                            title="Identidad suplantada"
+                            description="Uso de identificaciones robadas o alteradas para firmar contratos."
+                        />
                     </div>
                 </div>
             </section>
@@ -189,34 +189,7 @@ export const LeasingHome: React.FC = () => {
             </section>
 
             {/* Reutilizamos Trust Section si se desea, o se puede omitir para variar. El usuario pidió misma estructura. La repetiré por consistencia. */}
-            <section className="py-20 bg-slate-50 dark:bg-slate-900/50 border-y border-slate-200 dark:border-slate-800">
-                <div className="max-w-7xl mx-auto px-4 text-center">
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-12">Metodología VDMX</h2>
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <div className="flex flex-col items-center">
-                            <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center mb-6 text-purple-600">
-                                <span className="material-symbols-outlined text-3xl">fingerprint</span>
-                            </div>
-                            <h3 className="text-lg font-bold mb-2 dark:text-white">Identidad Verificada</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Validamos biométricos e identificaciones contra RENAPO y listas oficiales.</p>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center mb-6 text-purple-600">
-                                <span className="material-symbols-outlined text-3xl">psychology</span>
-                            </div>
-                            <h3 className="text-lg font-bold mb-2 dark:text-white">Análisis Financiero IA</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Algoritmos que detectan alteraciones de pixeles y metadatos en estados de cuenta.</p>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center mb-6 text-purple-600">
-                                <span className="material-symbols-outlined text-3xl">verified_user</span>
-                            </div>
-                            <h3 className="text-lg font-bold mb-2 dark:text-white">Reporte Certificado</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Ideal para procesos de póliza jurídica y arbitraje inmobiliario.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <TrustSection iconColor="text-purple-600" />
         </div>
     );
 };

@@ -1,9 +1,15 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
+import { FeatureCard } from '../components/home/FeatureCard';
+import { TrustSection } from '../components/home/TrustSection';
+import { SEO } from '../components/SEO';
 
 export const Home: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
+      <SEO
+        title="Riesgo Automotriz"
+        description="Evita fraudes automotrices. Detectamos siniestros ocultos, kilometraje alterado y adeudos en vehículos usados."
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-16 pb-32 lg:pt-32">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white dark:from-darkbg dark:to-cardbg -z-10" />
@@ -48,30 +54,24 @@ export const Home: React.FC = () => {
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Los fraudes automotrices más comunes en México</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <div className="bg-white dark:bg-cardbg p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-xl flex items-center justify-center mb-4">
-                <span className="material-symbols-outlined text-2xl">car_crash</span>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Siniestros ocultos</h3>
-              <p className="text-slate-600 dark:text-slate-400">Daños estructurales no declarados que afectan la seguridad y valor del auto.</p>
-            </div>
-            {/* Card 2 */}
-            <div className="bg-white dark:bg-cardbg p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 text-orange-600 rounded-xl flex items-center justify-center mb-4">
-                <span className="material-symbols-outlined text-2xl">speed</span>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Kilometraje alterado</h3>
-              <p className="text-slate-600 dark:text-slate-400">Odómetros manipulados para aparentar menor desgaste y aumentar el precio.</p>
-            </div>
-            {/* Card 3 */}
-            <div className="bg-white dark:bg-cardbg p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 text-purple-600 rounded-xl flex items-center justify-center mb-4">
-                <span className="material-symbols-outlined text-2xl">account_balance_wallet</span>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Créditos o empeños activos</h3>
-              <p className="text-slate-600 dark:text-slate-400">Vehículos con adeudos vigentes que impiden el cambio de propietario legal.</p>
-            </div>
+            <FeatureCard
+              icon="car_crash"
+              colorClass="red"
+              title="Siniestros ocultos"
+              description="Daños estructurales no declarados que afectan la seguridad y valor del auto."
+            />
+            <FeatureCard
+              icon="speed"
+              colorClass="orange"
+              title="Kilometraje alterado"
+              description="Odómetros manipulados para aparentar menor desgaste y aumentar el precio."
+            />
+            <FeatureCard
+              icon="account_balance_wallet"
+              colorClass="purple"
+              title="Créditos o empeños activos"
+              description="Vehículos con adeudos vigentes que impiden el cambio de propietario legal."
+            />
           </div>
         </div>
       </section>
@@ -190,34 +190,7 @@ export const Home: React.FC = () => {
       </section>
 
       {/* Trust Section */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900/50 border-y border-slate-200 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-12">Metodología VDMX</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined text-3xl">fingerprint</span>
-              </div>
-              <h3 className="text-lg font-bold mb-2 dark:text-white">Identidad Verificada</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Validamos biométricos y documentos oficiales contra bases gubernamentales.</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined text-3xl">psychology</span>
-              </div>
-              <h3 className="text-lg font-bold mb-2 dark:text-white">Análisis Humano + IA</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">La IA procesa datos, nuestros expertos validan el contexto y las sutilezas.</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-lg flex items-center justify-center mb-6 text-primary">
-                <span className="material-symbols-outlined text-3xl">verified_user</span>
-              </div>
-              <h3 className="text-lg font-bold mb-2 dark:text-white">Reporte Certificado</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Entregables inalterables con hash criptográfico y validez legal.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <TrustSection iconColor="text-primary" />
     </div>
   );
 };
