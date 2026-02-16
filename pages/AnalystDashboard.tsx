@@ -134,6 +134,7 @@ export const AnalystDashboard: React.FC = () => {
         setRealCases(data);
       }
     } catch (e) {
+      // Force sync
       console.error('Error fetching cases', e);
     }
   };
