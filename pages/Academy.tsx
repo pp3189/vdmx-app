@@ -17,6 +17,8 @@ type AcademyModule = {
   practice: string[];
   project: AcademyProject;
   videos: AcademyVideo[];
+  guidedHours?: number;
+  lab?: AcademyLab;
 };
 
 type AcademyLesson = {
@@ -59,6 +61,17 @@ type AcademyVideo = {
   why: string;
 };
 
+type AcademyLab = {
+  title: string;
+  brief: string;
+  dataset: string;
+  tasks: string[];
+  expected: string[];
+  solution: string;
+  acceptedKeywords: string[];
+  minimumMatches: number;
+};
+
 type AcademyState = {
   weeklyHours: number;
   completed: Record<string, number[]>;
@@ -73,6 +86,9 @@ type AcademyState = {
   projectResults: Record<string, boolean>;
   chapterAnswers: Record<string, number>;
   chapterChecks: Record<string, boolean>;
+  labResponses: Record<string, string>;
+  labResults: Record<string, boolean>;
+  labTasks: Record<string, number[]>;
 };
 
 const STORAGE_KEY = 'vdmx-academy-state-v2';
@@ -312,10 +328,11 @@ const learningContent: Record<string, Omit<AcademyModule, 'id' | 'title' | 'area
   }
 };
 
-const moduleDetails: Record<string, Pick<AcademyModule, 'prerequisites' | 'practice' | 'project' | 'videos'>> = {
+const moduleDetails: Record<string, Pick<AcademyModule, 'prerequisites' | 'practice' | 'project' | 'videos'> & { guidedHours?: number; lab?: AcademyLab }> = {
   python: {
     prerequisites: ['Ninguno; instala Python 3.11+ y aprende a usar la terminal.', 'Escribe y ejecuta pequeños scripts antes de avanzar.'],
-    practice: ['Resolver 10 problemas de transformación de datos.', 'Leer JSON imperfecto y producir un reporte de calidad.', 'Construir un clasificador de señales con pruebas unitarias.'],
+    guidedHours: 24,
+    practice: ['Resolver 10 problemas de transformación de datos.', 'Leer JSON imperfecto y producir un reporte de calidad.', 'Construir un clasificador de señales con pruebas unitarias.', 'Repetir el laboratorio con un dataset propio.', 'Defender decisiones y limitaciones en una revisión oral.'],
     project: {
       title: 'Pipeline de señales en Python',
       brief: 'Construye un script que reciba expedientes JSON, valide campos, calcule tres razones y entregue señales con evidencia y nivel de confianza.',
@@ -324,7 +341,17 @@ const moduleDetails: Record<string, Pick<AcademyModule, 'prerequisites' | 'pract
       acceptedKeywords: ['valid', 'json', 'func', 'prueba', 'señal'],
       minimumMatches: 4
     },
-    videos: [{ title: 'Curso completo de Python para principiantes', channel: 'freeCodeCamp.org', videoId: 'rfscVS0vtbw', why: 'Refuerza sintaxis, funciones, archivos y estructuras antes de automatizar análisis.' }]
+    videos: [{ title: 'Curso completo de Python para principiantes', channel: 'freeCodeCamp.org', videoId: 'rfscVS0vtbw', why: 'Refuerza sintaxis, funciones, archivos y estructuras antes de automatizar análisis.' }],
+    lab: {
+      title: 'Laboratorio: clasificador de expedientes B2B',
+      brief: 'Trabajarás con un dataset pequeño de empresas. El objetivo no es copiar una respuesta, sino escribir un pipeline que valide datos, calcule señales y deje evidencia para que otro analista lo revise.',
+      dataset: 'company_id,annual_sales,debt,ebitda,late_payments,country\nMX-001,1800000,420000,120000,0,MX\nMX-002,950000,700000,100000,3,MX\nMX-003,2400000,300000,250000,1,MX\nMX-004,780000,520000,0,4,MX\nMX-005,5100000,900000,300000,0,US',
+      tasks: ['Carga el CSV y convierte las columnas numéricas.', 'Valida ebitda == 0 antes de calcular deuda/EBITDA.', 'Crea HIGH_LEVERAGE cuando deuda/EBITDA sea mayor a 4.', 'Crea PAYMENT_RISK cuando late_payments sea mayor o igual a 3.', 'Devuelve una señal con empresa, regla activada y evidencia.'],
+      expected: ['MX-002 activa HIGH_LEVERAGE y PAYMENT_RISK.', 'MX-004 no debe romper el programa: debe producir una señal de dato inválido o revisión manual.', 'MX-001, MX-003 y MX-005 no activan las dos reglas anteriores.'],
+      solution: 'Usa csv.DictReader o pandas, convierte debt, ebitda y late_payments, controla el caso ebitda == 0, separa las reglas en funciones y devuelve resultados con company_id y evidence.',
+      acceptedKeywords: ['csv', 'float', 'ebitda', 'high_leverage', 'payment_risk', 'evidence', 'zero'],
+      minimumMatches: 5
+    }
   },
   sql: {
     prerequisites: ['Módulo Python recomendado.', 'Comprende filas, columnas, claves y relaciones.'],
@@ -475,7 +502,11 @@ const supplementalLessons: Record<string, AcademyLesson[]> = {
   python: [
     { id: 'python-4', title: 'Diseño de pipelines', objective: 'Encadenar pasos sin perder trazabilidad.', content: 'Un pipeline debe poder reanudarse, repetirse y explicar qué ocurrió en cada etapa. Conserva entradas, salidas, versión de la regla y errores; evita una función gigante que mezcle lectura, cálculo y decisión.', example: 'raw -> validated -> normalized -> features -> signals' },
     { id: 'python-5', title: 'Pruebas y calidad', objective: 'Probar reglas antes de confiar en sus resultados.', content: 'Prueba casos normales, límites, datos faltantes y entradas maliciosas. Una regla de riesgo debe fallar de forma visible y tener ejemplos que otra persona pueda revisar.', example: 'assert leverage_flag(500, 100) is True\nassert leverage_flag(0, 0) is False' },
-    { id: 'python-6', title: 'Automatización responsable', objective: 'Automatizar tareas repetibles con controles.', content: 'Automatizar no significa decidir sin supervisión. Define permisos, logs, límites de volumen, reintentos y una salida para revisión humana cuando la evidencia sea insuficiente.', example: 'if confidence < 0.7:\n    route_to_review(case)' }
+    { id: 'python-6', title: 'Automatización responsable', objective: 'Automatizar tareas repetibles con controles.', content: 'Automatizar no significa decidir sin supervisión. Define permisos, logs, límites de volumen, reintentos y una salida para revisión humana cuando la evidencia sea insuficiente.', example: 'if confidence < 0.7:\n    route_to_review(case)' },
+    { id: 'python-7', title: 'Pandas para análisis tabular', objective: 'Explorar y transformar datasets sin perder contexto.', content: 'Pandas permite trabajar con tablas, pero la herramienta no reemplaza el razonamiento. Inspecciona tipos, nulos, duplicados y rangos antes de agrupar; conserva una copia de los datos originales y documenta cada transformación.', example: 'df = pd.read_csv("companies.csv")\ndf["debt_to_ebitda"] = df["debt"] / df["ebitda"].replace(0, pd.NA)' },
+    { id: 'python-8', title: 'Funciones de dominio', objective: 'Traducir reglas de riesgo a código que otro analista pueda revisar.', content: 'Una función de dominio debe tener un nombre que explique la regla, entradas explícitas y una salida con evidencia. Evita devolver solo True o False cuando el sistema necesita explicar por qué activó una señal.', example: 'def payment_risk(record):\n    return {"flag": record["late_payments"] >= 3,\n            "evidence": record["late_payments"]}' },
+    { id: 'python-9', title: 'Pruebas, casos límite y regresión', objective: 'Evitar que un cambio rompa una regla existente.', content: 'Una prueba útil documenta una expectativa. Incluye casos normales, límites, datos faltantes, tipos incorrectos y combinaciones que antes causaron errores. Cuando una regla cambia, agrega una prueba de regresión.', example: 'def test_zero_ebitda_routes_to_review():\n    assert assess({"debt": 100, "ebitda": 0})["status"] == "REVIEW"' },
+    { id: 'python-10', title: 'Entrega y defensa técnica', objective: 'Explicar tu solución como profesional de datos.', content: 'Una entrega no es solo código: incluye instrucciones para ejecutarlo, decisiones, supuestos, resultados esperados, limitaciones y próximos pasos. Poder defender por qué no automatizaste una conclusión también es una competencia técnica.', example: 'README -> run -> validate -> results -> limitations -> next_steps' }
   ],
   sql: [
     { id: 'sql-4', title: 'CTE y consultas legibles', objective: 'Construir consultas por etapas.', content: 'Una CTE permite nombrar pasos intermedios: entidades limpias, relaciones válidas y señales agregadas. Esto facilita revisar el razonamiento y cambiar una etapa sin esconder la lógica.', example: 'WITH clean AS (...), signals AS (...)\nSELECT * FROM signals;' },
@@ -569,7 +600,10 @@ const defaultState: AcademyState = {
   projectNotes: {},
   projectResults: {},
   chapterAnswers: {},
-  chapterChecks: {}
+  chapterChecks: {},
+  labResponses: {},
+  labResults: {},
+  labTasks: {}
 };
 
 function normalizeState(value: unknown): AcademyState {
@@ -593,7 +627,10 @@ function normalizeState(value: unknown): AcademyState {
     projectNotes: candidate.projectNotes && typeof candidate.projectNotes === 'object' ? candidate.projectNotes : {},
     projectResults: candidate.projectResults && typeof candidate.projectResults === 'object' ? candidate.projectResults : {},
     chapterAnswers: candidate.chapterAnswers && typeof candidate.chapterAnswers === 'object' ? candidate.chapterAnswers : {},
-    chapterChecks: candidate.chapterChecks && typeof candidate.chapterChecks === 'object' ? candidate.chapterChecks : {}
+    chapterChecks: candidate.chapterChecks && typeof candidate.chapterChecks === 'object' ? candidate.chapterChecks : {},
+    labResponses: candidate.labResponses && typeof candidate.labResponses === 'object' ? candidate.labResponses : {},
+    labResults: candidate.labResults && typeof candidate.labResults === 'object' ? candidate.labResults : {},
+    labTasks: candidate.labTasks && typeof candidate.labTasks === 'object' ? candidate.labTasks : {}
   };
 }
 
@@ -607,11 +644,12 @@ export const Academy: React.FC = () => {
   const [query, setQuery] = useState('');
   const [area, setArea] = useState('Todas');
   const [level, setLevel] = useState('Todos');
-  const [learningTab, setLearningTab] = useState<'lessons' | 'exercise' | 'test' | 'project'>('lessons');
+  const [learningTab, setLearningTab] = useState<'lessons' | 'exercise' | 'test' | 'project' | 'lab'>('lessons');
   const [lessonIndex, setLessonIndex] = useState(0);
   const [exerciseDraft, setExerciseDraft] = useState('');
   const [quizDraft, setQuizDraft] = useState<Record<string, number>>({});
   const [projectDraft, setProjectDraft] = useState('');
+  const [labDraft, setLabDraft] = useState('');
   const [chapterOpen, setChapterOpen] = useState(false);
   const [chapterAnswer, setChapterAnswer] = useState<number | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -729,6 +767,9 @@ export const Academy: React.FC = () => {
   const activeExercisePassed = Boolean(state.exerciseResults[activeModule.id]);
   const activeQuizScore = state.quizScores[activeModule.id];
   const activeProjectPassed = Boolean(state.projectResults[activeModule.id]);
+  const activeLab = activeModule.lab;
+  const activeLabPassed = Boolean(state.labResults[activeModule.id]);
+  const activeLabTasks = state.labTasks[activeModule.id] || [];
   const activeCheckpoint = activeModule.quiz[activeLessonIndex % activeModule.quiz.length];
   const activeChapterChecked = Boolean(state.chapterChecks[activeLesson.id]);
   const totalMilestones = modules.reduce((sum, item) => sum + item.outcomes.length, 0);
@@ -738,8 +779,10 @@ export const Academy: React.FC = () => {
   const passedExerciseTotal = modules.filter((item) => state.exerciseResults[item.id]).length;
   const passedQuizTotal = modules.filter((item) => (state.quizScores[item.id] || 0) >= 70).length;
   const passedProjectTotal = modules.filter((item) => state.projectResults[item.id]).length;
-  const progressItems = totalMilestones + totalLessons + modules.length * 3;
-  const completedLearningItems = completedTotal + completedLessonTotal + passedExerciseTotal + passedQuizTotal + passedProjectTotal;
+  const totalLabs = modules.filter((item) => item.lab).length;
+  const passedLabTotal = modules.filter((item) => state.labResults[item.id]).length;
+  const progressItems = totalMilestones + totalLessons + modules.length * 3 + totalLabs;
+  const completedLearningItems = completedTotal + completedLessonTotal + passedExerciseTotal + passedQuizTotal + passedProjectTotal + passedLabTotal;
   const progress = Math.round((completedLearningItems / progressItems) * 100);
   const completedHours = Math.round(modules.reduce((sum, item) => sum + item.hours * ((state.completed[item.id]?.length || 0) / item.outcomes.length), 0));
   const months = Math.max(1, Math.round((1200 / (state.weeklyHours * 4.33)) * 10) / 10);
@@ -750,6 +793,7 @@ export const Academy: React.FC = () => {
     setExerciseDraft(state.exerciseResponses[activeModule.id] || '');
     setQuizDraft(state.quizAnswers[activeModule.id] || {});
     setProjectDraft(state.projectNotes[activeModule.id] || '');
+    setLabDraft(state.labResponses[activeModule.id] || '');
     setChapterOpen(false);
     setChapterAnswer(state.chapterAnswers[activeLesson.id] ?? null);
   }, [activeModule.id]);
@@ -770,6 +814,7 @@ export const Academy: React.FC = () => {
     setExerciseDraft(state.exerciseResponses[moduleId] || '');
     setQuizDraft(state.quizAnswers[moduleId] || {});
     setProjectDraft(state.projectNotes[moduleId] || '');
+    setLabDraft(state.labResponses[moduleId] || '');
   };
 
   const markLessonComplete = () => {
@@ -832,6 +877,27 @@ export const Academy: React.FC = () => {
       projectResults: { ...previous.projectResults, [activeModule.id]: passed }
     }));
     setNotice(passed ? 'Proyecto entregado. Usa la rúbrica para hacer una revisión crítica.' : 'El proyecto necesita más evidencia. Completa el brief y cubre la rúbrica antes de entregarlo.');
+  };
+
+  const toggleLabTask = (index: number) => {
+    setState((previous) => {
+      const current = new Set<number>(previous.labTasks[activeModule.id] || []);
+      if (current.has(index)) current.delete(index); else current.add(index);
+      return { ...previous, labTasks: { ...previous.labTasks, [activeModule.id]: Array.from(current).sort((a, b) => a - b) } };
+    });
+  };
+
+  const reviewLab = () => {
+    if (!activeLab) return;
+    const response = labDraft.trim().toLowerCase();
+    const matches = activeLab.acceptedKeywords.filter((keyword) => response.includes(keyword.toLowerCase())).length;
+    const passed = response.length >= 120 && matches >= activeLab.minimumMatches && activeLabTasks.length === activeLab.tasks.length;
+    setState((previous) => ({
+      ...previous,
+      labResponses: { ...previous.labResponses, [activeModule.id]: labDraft },
+      labResults: { ...previous.labResults, [activeModule.id]: passed }
+    }));
+    setNotice(passed ? 'Laboratorio entregado. Revisa los resultados esperados y documenta tus decisiones.' : 'El laboratorio aún está incompleto: marca todas las tareas y explica tu solución con evidencia.');
   };
 
   const signOut = () => {
@@ -908,16 +974,17 @@ export const Academy: React.FC = () => {
           <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div><p className="text-xs font-bold uppercase tracking-wider text-primary">{activeModule.area} · {activeModule.level}</p><h2 className="mt-2 text-2xl font-bold">{activeModule.title}</h2><p className="mt-2 text-slate-400">{activeModule.summary}</p></div>
-              <span className="rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300">{completedLessons.length}/{activeModule.lessons.length} lecciones</span>
+              <div className="flex flex-wrap gap-2"><span className="rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300">{completedLessons.length}/{activeModule.lessons.length} lecciones</span>{activeModule.guidedHours && <span className="rounded-lg bg-primary/15 px-3 py-2 text-sm text-blue-200">Ruta guiada: {activeModule.guidedHours} h</span>}</div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-2 border-b border-slate-800 md:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-2 border-b border-slate-800 md:grid-cols-5">
               {[
                 ['lessons', 'Lecciones'],
                 ['exercise', 'Ejercicio'],
                 ['test', 'Test'],
-                ['project', 'Proyecto y videos']
-              ].map(([tab, label]) => <button key={tab} type="button" onClick={() => { setLearningTab(tab as 'lessons' | 'exercise' | 'test' | 'project'); setChapterOpen(false); }} className={learningTab === tab ? 'border-b-2 border-primary px-3 py-3 text-sm font-semibold text-white' : 'border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-slate-500 hover:text-slate-300'}>{label}</button>)}
+                ['project', 'Proyecto y videos'],
+                ['lab', 'Laboratorio']
+              ].filter(([tab]) => tab !== 'lab' || Boolean(activeModule.lab)).map(([tab, label]) => <button key={tab} type="button" onClick={() => { setLearningTab(tab as 'lessons' | 'exercise' | 'test' | 'project' | 'lab'); setChapterOpen(false); }} className={learningTab === tab ? 'border-b-2 border-primary px-3 py-3 text-sm font-semibold text-white' : 'border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-slate-500 hover:text-slate-300'}>{label}</button>)}
             </div>
 
             {learningTab === 'lessons' && <div className="mt-5 space-y-5">
@@ -972,6 +1039,16 @@ export const Academy: React.FC = () => {
                 <button type="button" onClick={gradeQuiz} disabled={Object.keys(quizDraft).length < activeModule.quiz.length} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-40">Calificar test</button>
                 {activeQuizScore !== undefined && <span className={activeQuizScore >= 70 ? 'text-sm font-semibold text-emerald-300' : 'text-sm font-semibold text-amber-300'}>Resultado: {activeQuizScore}%</span>}
               </div>
+            </div>}
+
+            {learningTab === 'lab' && activeLab && <div className="mt-5 space-y-5">
+              <div><p className="text-xs font-bold uppercase tracking-wider text-primary">Laboratorio ejecutable</p><h3 className="mt-2 text-xl font-bold">{activeLab.title}</h3><p className="mt-2 text-sm leading-7 text-slate-300">{activeLab.brief}</p></div>
+              <div className="rounded-lg border border-slate-800 bg-slate-950 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Dataset de práctica</p><button type="button" onClick={() => void navigator.clipboard?.writeText(activeLab.dataset)} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-900">Copiar dataset</button></div><pre className="mt-3 max-h-64 overflow-auto text-xs leading-6 text-blue-200"><code>{activeLab.dataset}</code></pre></div>
+              <div className="rounded-lg border border-slate-800 bg-slate-950 p-4"><p className="text-xs font-bold uppercase tracking-wider text-primary">Tareas</p><div className="mt-3 space-y-2">{activeLab.tasks.map((task, index) => <label key={task} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-800 p-3 text-sm text-slate-300"><input type="checkbox" checked={activeLabTasks.includes(index)} onChange={() => toggleLabTask(index)} className="mt-1 h-4 w-4 accent-primary" /><span>{index + 1}. {task}</span></label>)}</div><p className="mt-3 text-xs text-slate-500">{activeLabTasks.length}/{activeLab.tasks.length} tareas marcadas</p></div>
+              <textarea value={labDraft} onChange={(event) => setLabDraft(event.target.value)} placeholder="Escribe tu solución: estructura del pipeline, funciones, señales, resultados y limitaciones..." rows={10} className="w-full rounded-lg border border-slate-700 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none focus:border-primary" />
+              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4"><p className="text-xs font-bold uppercase tracking-wider text-emerald-300">Resultados esperados</p><ul className="mt-3 space-y-2 text-sm leading-6 text-emerald-100">{activeLab.expected.map((item) => <li key={item}>✓ {item}</li>)}</ul></div>
+              <div className="flex flex-wrap items-center gap-3"><button type="button" onClick={reviewLab} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600">Revisar laboratorio</button>{activeLabPassed && <span className="text-sm font-semibold text-emerald-300">Laboratorio aprobado y guardado</span>}</div>
+              <details className="rounded-lg border border-slate-800 bg-slate-950 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-300">Ver enfoque de solución</summary><p className="mt-3 text-sm leading-7 text-slate-400">{activeLab.solution}</p></details>
             </div>}
 
             {learningTab === 'project' && <div className="mt-5 space-y-5">
