@@ -71,6 +71,8 @@ type AcademyState = {
   quizScores: Record<string, number>;
   projectNotes: Record<string, string>;
   projectResults: Record<string, boolean>;
+  chapterAnswers: Record<string, number>;
+  chapterChecks: Record<string, boolean>;
 };
 
 const STORAGE_KEY = 'vdmx-academy-state-v2';
@@ -565,7 +567,9 @@ const defaultState: AcademyState = {
   quizAnswers: {},
   quizScores: {},
   projectNotes: {},
-  projectResults: {}
+  projectResults: {},
+  chapterAnswers: {},
+  chapterChecks: {}
 };
 
 function normalizeState(value: unknown): AcademyState {
@@ -587,7 +591,9 @@ function normalizeState(value: unknown): AcademyState {
     quizAnswers: candidate.quizAnswers && typeof candidate.quizAnswers === 'object' ? candidate.quizAnswers : {},
     quizScores: candidate.quizScores && typeof candidate.quizScores === 'object' ? candidate.quizScores : {},
     projectNotes: candidate.projectNotes && typeof candidate.projectNotes === 'object' ? candidate.projectNotes : {},
-    projectResults: candidate.projectResults && typeof candidate.projectResults === 'object' ? candidate.projectResults : {}
+    projectResults: candidate.projectResults && typeof candidate.projectResults === 'object' ? candidate.projectResults : {},
+    chapterAnswers: candidate.chapterAnswers && typeof candidate.chapterAnswers === 'object' ? candidate.chapterAnswers : {},
+    chapterChecks: candidate.chapterChecks && typeof candidate.chapterChecks === 'object' ? candidate.chapterChecks : {}
   };
 }
 
@@ -606,6 +612,8 @@ export const Academy: React.FC = () => {
   const [exerciseDraft, setExerciseDraft] = useState('');
   const [quizDraft, setQuizDraft] = useState<Record<string, number>>({});
   const [projectDraft, setProjectDraft] = useState('');
+  const [chapterOpen, setChapterOpen] = useState(false);
+  const [chapterAnswer, setChapterAnswer] = useState<number | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedRef = useRef(false);
 
@@ -721,6 +729,8 @@ export const Academy: React.FC = () => {
   const activeExercisePassed = Boolean(state.exerciseResults[activeModule.id]);
   const activeQuizScore = state.quizScores[activeModule.id];
   const activeProjectPassed = Boolean(state.projectResults[activeModule.id]);
+  const activeCheckpoint = activeModule.quiz[activeLessonIndex % activeModule.quiz.length];
+  const activeChapterChecked = Boolean(state.chapterChecks[activeLesson.id]);
   const totalMilestones = modules.reduce((sum, item) => sum + item.outcomes.length, 0);
   const completedTotal = modules.reduce((sum, item) => sum + (state.completed[item.id]?.length || 0), 0);
   const totalLessons = modules.reduce((sum, item) => sum + item.lessons.length, 0);
@@ -740,6 +750,8 @@ export const Academy: React.FC = () => {
     setExerciseDraft(state.exerciseResponses[activeModule.id] || '');
     setQuizDraft(state.quizAnswers[activeModule.id] || {});
     setProjectDraft(state.projectNotes[activeModule.id] || '');
+    setChapterOpen(false);
+    setChapterAnswer(state.chapterAnswers[activeLesson.id] ?? null);
   }, [activeModule.id]);
 
   const updateCompletion = (moduleId: string, index: number) => {
@@ -754,6 +766,7 @@ export const Academy: React.FC = () => {
     setState((previous) => ({ ...previous, activeModuleId: moduleId }));
     setLessonIndex(0);
     setLearningTab('lessons');
+    setChapterOpen(false);
     setExerciseDraft(state.exerciseResponses[moduleId] || '');
     setQuizDraft(state.quizAnswers[moduleId] || {});
     setProjectDraft(state.projectNotes[moduleId] || '');
@@ -767,6 +780,23 @@ export const Academy: React.FC = () => {
         [activeModule.id]: Array.from(new Set([...(previous.lessonProgress[activeModule.id] || []), activeLesson.id]))
       }
     }));
+  };
+
+  const openChapter = (index: number) => {
+    setLessonIndex(index);
+    setChapterOpen(true);
+    setChapterAnswer(state.chapterAnswers[activeModule.lessons[index].id] ?? null);
+  };
+
+  const checkChapter = () => {
+    if (chapterAnswer === null) return;
+    const passed = chapterAnswer === activeCheckpoint.answer;
+    setState((previous) => ({
+      ...previous,
+      chapterAnswers: { ...previous.chapterAnswers, [activeLesson.id]: chapterAnswer },
+      chapterChecks: { ...previous.chapterChecks, [activeLesson.id]: passed }
+    }));
+    setNotice(passed ? 'Comprobación correcta. Ya puedes continuar.' : 'Revisa la explicación y vuelve a intentarlo.');
   };
 
   const reviewExercise = () => {
@@ -874,7 +904,7 @@ export const Academy: React.FC = () => {
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{filteredModules.map((item) => { const done = state.completed[item.id]?.length || 0; const lessonsDone = state.lessonProgress[item.id]?.length || 0; const quizScore = state.quizScores[item.id]; const itemProgress = Math.round(((lessonsDone + done + (state.exerciseResults[item.id] ? 1 : 0) + (quizScore !== undefined && quizScore >= 70 ? 1 : 0)) / (item.lessons.length + item.outcomes.length + 2)) * 100); return <button key={item.id} type="button" onClick={() => selectModule(item.id)} className={`text-left rounded-xl border p-4 transition-colors ${state.activeModuleId === item.id ? 'border-primary bg-primary/10' : 'border-slate-800 bg-slate-900 hover:border-slate-600'}`}><div className="flex items-start justify-between gap-3"><span className="text-xs font-bold uppercase tracking-wider text-primary">{item.area}</span><span className="text-xs text-slate-500">{item.hours} h</span></div><h3 className="mt-3 font-bold">{item.title}</h3><p className="mt-2 min-h-10 text-sm text-slate-400">{item.summary}</p><div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800"><div className="h-full bg-primary" style={{ width: `${itemProgress}%` }} /></div><p className="mt-2 text-xs text-slate-500">{lessonsDone}/{item.lessons.length} lecciones · {done}/{item.outcomes.length} objetivos{quizScore !== undefined ? ` · Test ${quizScore}%` : ''}</p></button>; })}</div>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
+        <section className={chapterOpen ? 'grid gap-6' : 'grid gap-6 lg:grid-cols-[1.15fr_.85fr]'}>
           <article className="rounded-xl border border-slate-800 bg-slate-900 p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div><p className="text-xs font-bold uppercase tracking-wider text-primary">{activeModule.area} · {activeModule.level}</p><h2 className="mt-2 text-2xl font-bold">{activeModule.title}</h2><p className="mt-2 text-slate-400">{activeModule.summary}</p></div>
@@ -887,31 +917,34 @@ export const Academy: React.FC = () => {
                 ['exercise', 'Ejercicio'],
                 ['test', 'Test'],
                 ['project', 'Proyecto y videos']
-              ].map(([tab, label]) => <button key={tab} type="button" onClick={() => setLearningTab(tab as 'lessons' | 'exercise' | 'test' | 'project')} className={learningTab === tab ? 'border-b-2 border-primary px-3 py-3 text-sm font-semibold text-white' : 'border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-slate-500 hover:text-slate-300'}>{label}</button>)}
+              ].map(([tab, label]) => <button key={tab} type="button" onClick={() => { setLearningTab(tab as 'lessons' | 'exercise' | 'test' | 'project'); setChapterOpen(false); }} className={learningTab === tab ? 'border-b-2 border-primary px-3 py-3 text-sm font-semibold text-white' : 'border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-slate-500 hover:text-slate-300'}>{label}</button>)}
             </div>
 
             {learningTab === 'lessons' && <div className="mt-5 space-y-5">
-              <div className="grid gap-2 md:grid-cols-3">
-                {activeModule.lessons.map((lesson, index) => <button key={lesson.id} type="button" onClick={() => setLessonIndex(index)} className={activeLessonIndex === index ? 'rounded-lg border border-primary bg-primary/10 p-3 text-left' : 'rounded-lg border border-slate-800 bg-slate-950 p-3 text-left hover:border-slate-600'}>
-                  <span className="text-xs font-bold uppercase tracking-wider text-primary">Lección {index + 1}</span>
-                  <span className="mt-1 block text-sm font-semibold text-slate-200">{lesson.title}</span>
-                  <span className="mt-2 block text-xs text-slate-500">{completedLessons.includes(lesson.id) ? 'Completada' : 'Pendiente'}</span>
-                </button>)}
-              </div>
-              <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-primary">Lección {activeLessonIndex + 1}</p>
-                <h3 className="mt-2 text-xl font-bold">{activeLesson.title}</h3>
-                <p className="mt-2 text-sm font-semibold text-slate-300">Objetivo: {activeLesson.objective}</p>
-                <p className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-300">{activeLesson.content}</p>
-                {activeLesson.example && <pre className="mt-4 overflow-x-auto rounded-lg border border-slate-800 bg-slate-900 p-4 text-xs leading-6 text-blue-200"><code>{activeLesson.example}</code></pre>}
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                  <button type="button" onClick={markLessonComplete} className={completedLessons.includes(activeLesson.id) ? 'rounded-lg bg-emerald-500/15 px-4 py-2 text-sm font-bold text-emerald-300' : 'rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600'}>{completedLessons.includes(activeLesson.id) ? 'Lección completada' : 'Marcar lección completada'}</button>
-                  <div className="flex gap-2">
-                    <button type="button" disabled={activeLessonIndex === 0} onClick={() => setLessonIndex((index) => Math.max(0, index - 1))} className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 disabled:opacity-40">Anterior</button>
-                    <button type="button" disabled={activeLessonIndex === activeModule.lessons.length - 1} onClick={() => setLessonIndex((index) => Math.min(activeModule.lessons.length - 1, index + 1))} className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 disabled:opacity-40">Siguiente</button>
-                  </div>
+              {chapterOpen ? <div className="space-y-5">
+                <button type="button" onClick={() => setChapterOpen(false)} className="flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-white"><span className="material-symbols-outlined text-base">arrow_back</span>Volver al módulo</button>
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-wider text-primary">Capítulo {activeLessonIndex + 1} de {activeModule.lessons.length}</p><h3 className="mt-2 text-2xl font-bold">{activeLesson.title}</h3><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Al terminar este capítulo podrás: {activeLesson.objective.toLowerCase()}</p></div><span className="rounded-lg bg-slate-900 px-3 py-2 text-sm text-slate-300">{completedLessons.includes(activeLesson.id) ? 'Completado' : 'En estudio'}</span></div>
+                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800"><div className="h-full bg-primary" style={{ width: ((activeLessonIndex + 1) / activeModule.lessons.length * 100) + '%' }} /></div>
                 </div>
-              </div>
+                <article className="space-y-5 rounded-xl border border-slate-800 bg-slate-950 p-5">
+                  <section><p className="text-xs font-bold uppercase tracking-wider text-primary">1. La idea central</p><p className="mt-3 whitespace-pre-line text-base leading-8 text-slate-200">{activeLesson.content}</p></section>
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">2. Ejemplo guiado</p><p className="mt-2 text-sm leading-6 text-slate-400">Lee el ejemplo y explica con tus palabras qué entrada recibe, qué transformación aplica y qué evidencia produce.</p>{activeLesson.example && <pre className="mt-4 overflow-x-auto rounded-lg border border-slate-800 bg-slate-900 p-4 text-sm leading-7 text-blue-200"><code>{activeLesson.example}</code></pre>}</section>
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">3. Conexión con VDMX</p><p className="mt-3 text-sm leading-7 text-slate-300">{activeModule.project.brief}</p><div className="mt-4 rounded-lg border-l-2 border-amber-400 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100"><strong>Pregunta de analista:</strong> ¿qué dato faltante o falso positivo podría hacer que esta explicación fuera incorrecta?</div></section>
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">4. Actividad de aplicación</p><p className="mt-3 text-sm leading-7 text-slate-200">{activeModule.exercise.prompt}</p><button type="button" onClick={() => { setChapterOpen(false); setLearningTab('exercise'); }} className="mt-4 rounded-lg border border-primary px-4 py-2 text-sm font-bold text-blue-200 hover:bg-primary/10">Ir al ejercicio del módulo</button></section>
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">5. Comprueba tu comprensión</p><fieldset className="mt-3"><legend className="text-sm font-semibold text-slate-200">{activeCheckpoint.question}</legend><div className="mt-3 space-y-2">{activeCheckpoint.options.map((option, optionIndex) => <label key={option} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-800 p-3 text-sm text-slate-300 hover:bg-slate-900"><input type="radio" name={'chapter-' + activeLesson.id} checked={chapterAnswer === optionIndex} onChange={() => setChapterAnswer(optionIndex)} className="mt-1 accent-primary" />{option}</label>)}</div></fieldset><div className="mt-4 flex flex-wrap items-center gap-3"><button type="button" onClick={checkChapter} disabled={chapterAnswer === null} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-40">Comprobar respuesta</button>{state.chapterAnswers[activeLesson.id] !== undefined && <span className={activeChapterChecked ? 'text-sm font-semibold text-emerald-300' : 'text-sm font-semibold text-amber-300'}>{activeChapterChecked ? 'Correcto' : 'Revisa esta idea'}</span>}</div>{state.chapterAnswers[activeLesson.id] !== undefined && <p className="mt-3 text-sm leading-6 text-slate-400">{activeCheckpoint.explanation}</p>}</section>
+                </article>
+                <div className="flex flex-wrap items-center justify-between gap-3"><button type="button" onClick={markLessonComplete} className={completedLessons.includes(activeLesson.id) ? 'rounded-lg bg-emerald-500/15 px-4 py-2 text-sm font-bold text-emerald-300' : 'rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600'}>{completedLessons.includes(activeLesson.id) ? 'Capítulo completado' : 'Marcar capítulo completado'}</button><div className="flex gap-2"><button type="button" disabled={activeLessonIndex === 0} onClick={() => openChapter(Math.max(0, activeLessonIndex - 1))} className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 disabled:opacity-40">Anterior</button><button type="button" disabled={activeLessonIndex === activeModule.lessons.length - 1} onClick={() => openChapter(Math.min(activeModule.lessons.length - 1, activeLessonIndex + 1))} className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 disabled:opacity-40">Siguiente capítulo</button></div></div>
+              </div> : <>
+                <div className="grid gap-2 md:grid-cols-3">
+                  {activeModule.lessons.map((lesson, index) => <button key={lesson.id} type="button" onClick={() => openChapter(index)} className={activeLessonIndex === index ? 'rounded-lg border border-primary bg-primary/10 p-3 text-left' : 'rounded-lg border border-slate-800 bg-slate-950 p-3 text-left hover:border-slate-600'}>
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary">Capítulo {index + 1}</span>
+                    <span className="mt-1 block text-sm font-semibold text-slate-200">{lesson.title}</span>
+                    <span className="mt-2 block text-xs text-slate-500">{completedLessons.includes(lesson.id) ? 'Completado' : 'Abrir capítulo'}</span>
+                  </button>)}
+                </div>
+                <div className="rounded-lg border border-slate-800 bg-slate-950 p-4"><p className="text-sm leading-6 text-slate-400">Selecciona un capítulo para estudiar la explicación completa, seguir el ejemplo, resolver el checkpoint y después pasar a la práctica.</p></div>
+              </>}
             </div>}
 
             {learningTab === 'exercise' && <div className="mt-5 space-y-4">
@@ -988,7 +1021,7 @@ export const Academy: React.FC = () => {
               <div className="mt-5 border-l-2 border-primary pl-4"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">Reto</p><p className="mt-1 text-sm text-slate-300">{activeModule.challenge}</p></div>
             </div>
           </article>
-          <article className="rounded-xl border border-slate-800 bg-slate-900 p-5"><h2 className="text-xl font-bold">Diagnóstico inicial</h2><p className="mt-1 text-sm text-slate-400">Actualiza tu nivel cuando quieras; queda incluido en la sincronización.</p><div className="mt-5 space-y-5">{diagnosticItems.map(([id, label]) => <div key={id}><div className="flex justify-between text-sm"><span>{label}</span><strong className="text-primary">{state.diagnostic[id]}/5</strong></div><input aria-label={label} type="range" min="1" max="5" value={state.diagnostic[id]} onChange={(event) => setState((previous) => ({ ...previous, diagnostic: { ...previous.diagnostic, [id]: Number(event.target.value) } }))} className="mt-2 w-full accent-primary" /></div>)}</div><div className="mt-6 rounded-lg bg-slate-950 p-4"><p className="text-sm text-slate-400">Promedio actual</p><strong className="text-3xl">{(Object.values(state.diagnostic).reduce<number>((sum, value) => sum + Number(value), 0) / diagnosticItems.length).toFixed(1)}<span className="text-base text-slate-500"> / 5</span></strong></div></article>
+          {!chapterOpen && <article className="rounded-xl border border-slate-800 bg-slate-900 p-5"><h2 className="text-xl font-bold">Diagnóstico inicial</h2><p className="mt-1 text-sm text-slate-400">Actualiza tu nivel cuando quieras; queda incluido en la sincronización.</p><div className="mt-5 space-y-5">{diagnosticItems.map(([id, label]) => <div key={id}><div className="flex justify-between text-sm"><span>{label}</span><strong className="text-primary">{state.diagnostic[id]}/5</strong></div><input aria-label={label} type="range" min="1" max="5" value={state.diagnostic[id]} onChange={(event) => setState((previous) => ({ ...previous, diagnostic: { ...previous.diagnostic, [id]: Number(event.target.value) } }))} className="mt-2 w-full accent-primary" /></div>)}</div><div className="mt-6 rounded-lg bg-slate-950 p-4"><p className="text-sm text-slate-400">Promedio actual</p><strong className="text-3xl">{(Object.values(state.diagnostic).reduce<number>((sum, value) => sum + Number(value), 0) / diagnosticItems.length).toFixed(1)}<span className="text-base text-slate-500"> / 5</span></strong></div></article>}
         </section>
       </div>
     </main>
