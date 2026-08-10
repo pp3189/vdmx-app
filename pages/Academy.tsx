@@ -975,6 +975,9 @@ function normalizeState(value: unknown): AcademyState {
 }
 
 export const Academy: React.FC = () => {
+  const isLocalPreview = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const localModeRequested = typeof window !== 'undefined' && window.location.href.includes('modo=local');
+  const localModeAvailable = isLocalPreview || localModeRequested;
   const [state, setState] = useState<AcademyState>(defaultState);
   const [codeInput, setCodeInput] = useState(() => localStorage.getItem(CODE_KEY) || '');
   const [syncCode, setSyncCode] = useState('');
@@ -1015,6 +1018,19 @@ export const Academy: React.FC = () => {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'No se pudo sincronizar.');
     return payload as { state: AcademyState | null; updatedAt: string | null };
+  };
+
+  const enterLocalMode = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      setState(saved ? normalizeState(JSON.parse(saved)) : defaultState);
+    } catch {
+      setState(defaultState);
+    }
+    setSyncCode('');
+    setConnected(true);
+    loadedRef.current = true;
+    setNotice('Modo local activo. El avance se guarda en este navegador.');
   };
 
   const connect = async () => {
@@ -1075,8 +1091,9 @@ export const Academy: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!connected || !loadedRef.current || !syncCode) return;
+    if (!connected || !loadedRef.current) return;
     persistLocal(state);
+    if (!syncCode) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       try {
@@ -1287,6 +1304,7 @@ export const Academy: React.FC = () => {
           <label className="block text-sm font-semibold text-slate-300" htmlFor="sync-code">Código de sincronización</label>
           <input id="sync-code" type="password" value={codeInput} onChange={(event) => setCodeInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void connect(); }} className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-primary" placeholder="Ejemplo: vdmx-estudio-2026" autoComplete="off" />
           <button type="button" onClick={() => void connect()} disabled={loading} className="mt-4 w-full rounded-xl bg-primary px-4 py-3 font-bold text-white hover:bg-blue-600 disabled:opacity-50">{loading ? 'Conectando...' : 'Abrir Academy'}</button>
+          {localModeAvailable && <div className="mt-5 rounded-xl border border-amber-400/30 bg-amber-400/10 p-4"><p className="text-sm font-semibold text-amber-200">Modo temporal de estudio</p><p className="mt-1 text-sm leading-6 text-amber-100/80">Railway no esta disponible todavia. Puedes entrar sin sincronizacion; tu avance se guardara solo en este navegador.</p><button type="button" onClick={enterLocalMode} className="mt-3 w-full rounded-xl border border-amber-300/50 px-4 py-3 font-bold text-amber-100 hover:bg-amber-300/10">Entrar sin sincronizacion</button></div>}
           {notice && <p className="mt-4 text-sm text-amber-300" role="status">{notice}</p>}
           <p className="mt-6 text-xs text-slate-500">La dirección es discreta, pero el código debe mantenerse privado porque funciona como llave de sincronización.</p>
         </section>
@@ -1303,7 +1321,7 @@ export const Academy: React.FC = () => {
             <div><p className="text-xs uppercase tracking-[0.25em] text-slate-500">VDMX Academy</p><h1 className="text-xl font-bold">Risk Intelligence + Ciberseguridad</h1></div>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-emerald-400 md:inline-flex md:items-center md:gap-1"><span className="material-symbols-outlined text-base">cloud_done</span>{notice || 'Sincronizado'}</span>
+            <span className="hidden text-emerald-400 md:inline-flex md:items-center md:gap-1"><span className="material-symbols-outlined text-base">{syncCode ? 'cloud_done' : 'save'}</span>{syncCode ? (notice || 'Sincronizado') : 'Modo local'}</span>
             <button type="button" onClick={signOut} className="rounded-lg border border-slate-700 px-3 py-2 font-semibold text-slate-300 hover:bg-slate-800">Cambiar código</button>
           </div>
         </div>
