@@ -11,6 +11,7 @@ import { AnalystDashboard } from './pages/AnalystDashboard';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { Terms } from './pages/Terms';
 import { DebugGenerator } from './pages/DebugGenerator';
+import { Academy } from './pages/Academy';
 
 const App: React.FC = () => {
   return (
@@ -29,6 +30,7 @@ const App: React.FC = () => {
           {/* Analyst Dashboard (Standalone Layout) */}
           <Route path="/analyst" element={<AnalystDashboard />} />
           <Route path="/debug" element={<DebugGenerator />} />
+          <Route path="/vdmx-academy" element={<Academy />} />
         </Routes>
       </div>
     </Router>

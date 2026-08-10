@@ -18,3 +18,11 @@ View your app in AI Studio: https://ai.studio/apps/drive/11VawrtR_V-BaGwUigOi_NS
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## VDMX Academy
+
+La ruta discreta de estudio es `/#/vdmx-academy`. El primer acceso pide un código de sincronización de al menos 8 caracteres. Usa el mismo código en tu celular, computadora y tablet para recuperar el avance.
+
+El progreso se guarda en el backend. En producción, configura `DATABASE_URL` para que el servidor use PostgreSQL; la tabla `academy_progress` se crea automáticamente. En Vercel, configura `VITE_API_URL` con la URL pública del backend Express, por ejemplo `https://vdmx-app-production.up.railway.app`.
+
+El código de sincronización funciona como una llave privada: no se guarda en el servidor, pero cualquier persona que lo conozca podría acceder a ese progreso.

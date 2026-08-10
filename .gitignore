@@ -25,4 +25,5 @@ dist-ssr
 
 # Security
 .env
+server/academy-progress.json
 .DS_Store
