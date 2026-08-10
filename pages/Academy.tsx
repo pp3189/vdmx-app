@@ -13,6 +13,10 @@ type AcademyModule = {
   lessons: AcademyLesson[];
   exercise: AcademyExercise;
   quiz: AcademyQuestion[];
+  prerequisites: string[];
+  practice: string[];
+  project: AcademyProject;
+  videos: AcademyVideo[];
 };
 
 type AcademyLesson = {
@@ -39,6 +43,22 @@ type AcademyQuestion = {
   explanation: string;
 };
 
+type AcademyProject = {
+  title: string;
+  brief: string;
+  deliverables: string[];
+  rubric: string[];
+  acceptedKeywords: string[];
+  minimumMatches: number;
+};
+
+type AcademyVideo = {
+  title: string;
+  channel: string;
+  videoId: string;
+  why: string;
+};
+
 type AcademyState = {
   weeklyHours: number;
   completed: Record<string, number[]>;
@@ -49,12 +69,14 @@ type AcademyState = {
   exerciseResults: Record<string, boolean>;
   quizAnswers: Record<string, Record<string, number>>;
   quizScores: Record<string, number>;
+  projectNotes: Record<string, string>;
+  projectResults: Record<string, boolean>;
 };
 
 const STORAGE_KEY = 'vdmx-academy-state-v2';
 const CODE_KEY = 'vdmx-academy-sync-code-v1';
 
-const baseModules: Omit<AcademyModule, 'lessons' | 'exercise' | 'quiz'>[] = [
+const baseModules: Omit<AcademyModule, 'lessons' | 'exercise' | 'quiz' | 'prerequisites' | 'practice' | 'project' | 'videos'>[] = [
   {
     id: 'python', title: 'Python para análisis', area: 'Datos', level: 'Fundamentos', hours: 100,
     summary: 'Expresar lógica, transformar datos y automatizar investigaciones.',
@@ -129,7 +151,7 @@ const baseModules: Omit<AcademyModule, 'lessons' | 'exercise' | 'quiz'>[] = [
   }
 ];
 
-const learningContent: Record<string, Omit<AcademyModule, 'id' | 'title' | 'area' | 'level' | 'hours' | 'summary' | 'outcomes' | 'challenge'>> = {
+const learningContent: Record<string, Omit<AcademyModule, 'id' | 'title' | 'area' | 'level' | 'hours' | 'summary' | 'outcomes' | 'challenge' | 'prerequisites' | 'practice' | 'project' | 'videos'>> = {
   python: {
     lessons: [
       { id: 'python-1', title: 'Pensar en datos y decisiones', objective: 'Distinguir datos, reglas y conclusiones.', content: 'Un programa de riesgo no empieza con una pantalla: empieza con una pregunta verificable. Una variable representa un dato; una condición representa una regla; el resultado debe conservar la explicación de por qué se activó.', example: 'debt_to_ebitda = 5.4\nif debt_to_ebitda > 4:\n    flags.append("HIGH_LEVERAGE")' },
@@ -288,9 +310,169 @@ const learningContent: Record<string, Omit<AcademyModule, 'id' | 'title' | 'area
   }
 };
 
+const moduleDetails: Record<string, Pick<AcademyModule, 'prerequisites' | 'practice' | 'project' | 'videos'>> = {
+  python: {
+    prerequisites: ['Ninguno; instala Python 3.11+ y aprende a usar la terminal.', 'Escribe y ejecuta pequeños scripts antes de avanzar.'],
+    practice: ['Resolver 10 problemas de transformación de datos.', 'Leer JSON imperfecto y producir un reporte de calidad.', 'Construir un clasificador de señales con pruebas unitarias.'],
+    project: {
+      title: 'Pipeline de señales en Python',
+      brief: 'Construye un script que reciba expedientes JSON, valide campos, calcule tres razones y entregue señales con evidencia y nivel de confianza.',
+      deliverables: ['Código ejecutable y README.', 'Archivo de ejemplo con al menos 10 empresas.', 'Reporte que explique cada señal y sus limitaciones.'],
+      rubric: ['Valida entradas y errores.', 'Separa funciones y pruebas.', 'Cada señal es explicable y reproducible.'],
+      acceptedKeywords: ['valid', 'json', 'func', 'prueba', 'señal'],
+      minimumMatches: 4
+    },
+    videos: [{ title: 'Curso completo de Python para principiantes', channel: 'freeCodeCamp.org', videoId: 'rfscVS0vtbw', why: 'Refuerza sintaxis, funciones, archivos y estructuras antes de automatizar análisis.' }]
+  },
+  sql: {
+    prerequisites: ['Módulo Python recomendado.', 'Comprende filas, columnas, claves y relaciones.'],
+    practice: ['Escribir consultas desde preguntas de negocio.', 'Comparar JOIN, subconsultas y CTE.', 'Auditar duplicados y cardinalidad.'],
+    project: {
+      title: 'Mapa de relaciones empresariales en SQL',
+      brief: 'Diseña un esquema pequeño y crea consultas que detecten domicilios, representantes y cuentas compartidas, diferenciando coincidencia de señal.',
+      deliverables: ['Esquema SQL con datos de prueba.', 'Cinco consultas comentadas.', 'Nota de calidad sobre duplicados, nulos y fechas.'],
+      rubric: ['Claves y relaciones coherentes.', 'Consultas reproducibles.', 'Interpretación prudente de resultados.'],
+      acceptedKeywords: ['join', 'group', 'distinct', 'calidad', 'consulta'],
+      minimumMatches: 4
+    },
+    videos: [{ title: 'Curso completo de SQL y bases de datos', channel: 'freeCodeCamp.org', videoId: 'HXV3zeQKqGY', why: 'Acompaña la práctica de SELECT, JOIN, agregaciones, diseño y consultas analíticas.' }]
+  },
+  systems: {
+    prerequisites: ['Manejo básico de terminal.', 'Conceptos elementales de hardware y sistema operativo.'],
+    practice: ['Levantar una aplicación local y observar sus puertos.', 'Leer logs y construir una línea de tiempo.', 'Explicar DNS, TCP, TLS y HTTP con una captura controlada.'],
+    project: {
+      title: 'Investigación de una petición sospechosa',
+      brief: 'Documenta el recorrido de una petición desde el origen hasta el servicio y señala qué evidencia conservarías para investigar un incidente.',
+      deliverables: ['Diagrama de flujo.', 'Línea de tiempo de eventos.', 'Matriz de evidencia, propietario y retención.'],
+      rubric: ['Orden técnico correcto.', 'Distingue observación e hipótesis.', 'Incluye origen, tiempo, actor y resultado.'],
+      acceptedKeywords: ['dns', 'tcp', 'tls', 'http', 'log'],
+      minimumMatches: 4
+    },
+    videos: []
+  },
+  statistics: {
+    prerequisites: ['Álgebra básica.', 'Capacidad para leer tablas y porcentajes.'],
+    practice: ['Calcular percentiles y tasas base.', 'Simular falsos positivos.', 'Explicar una correlación sin confundirla con causalidad.'],
+    project: {
+      title: 'Experimento de señales y tasa base',
+      brief: 'Simula una población con fraude poco frecuente, mide una señal y demuestra cómo cambian los falsos positivos al variar la tasa base.',
+      deliverables: ['Tabla o notebook reproducible.', 'Gráfica de resultados.', 'Conclusiones escritas para una persona no técnica.'],
+      rubric: ['Define población y evento.', 'Calcula métricas correctamente.', 'Explica incertidumbre y límites.'],
+      acceptedKeywords: ['tasa base', 'falso', 'probabilidad', 'muestra', 'incertidumbre'],
+      minimumMatches: 4
+    },
+    videos: [{ title: 'Teorema de Bayes: geometría del cambio de creencias', channel: '3Blue1Brown', videoId: 'HZGCoVF3YvM', why: 'Visualiza Bayes para entender por qué una señal no equivale a una conclusión.' }]
+  },
+  underwriting: {
+    prerequisites: ['Módulos Python, SQL y estadística.', 'Lectura básica de estados financieros.'],
+    practice: ['Construir un análisis vertical y horizontal.', 'Comparar razones con pares y tendencia.', 'Redactar una decisión con condiciones y exposición.'],
+    project: {
+      title: 'Memo de riesgo de contraparte',
+      brief: 'Evalúa una empresa B2B ficticia y recomienda aprobar, rechazar o aprobar con condiciones, defendiendo cada conclusión.',
+      deliverables: ['Memo ejecutivo de dos páginas.', 'Cálculo de razones y supuestos.', 'Límites, garantías y plan de monitoreo.'],
+      rubric: ['Separa liquidez, rentabilidad y solvencia.', 'Expone supuestos.', 'La decisión es proporcional y explicable.'],
+      acceptedKeywords: ['flujo', 'deuda', 'liquidez', 'exposición', 'condición'],
+      minimumMatches: 4
+    },
+    videos: []
+  },
+  fraud: {
+    prerequisites: ['Estadística y SQL recomendados.', 'Distingue alerta, investigación y veredicto.'],
+    practice: ['Crear reglas con razón de falsos positivos.', 'Detectar velocidad y concentración.', 'Escribir hipótesis alternativas para cada red flag.'],
+    project: {
+      title: 'Sistema de detección explicable',
+      brief: 'Diseña un conjunto de señales de fraude para transacciones o empresas, con prioridad, evidencia, umbral y procedimiento de revisión.',
+      deliverables: ['Catálogo de señales.', 'Matriz de precisión esperada y costo.', 'Playbook de investigación para tres alertas.'],
+      rubric: ['No presenta señales como acusaciones.', 'Incluye controles contra sesgo.', 'Prioriza por impacto y evidencia.'],
+      acceptedKeywords: ['señal', 'falso', 'umbral', 'evidencia', 'investigación'],
+      minimumMatches: 4
+    },
+    videos: []
+  },
+  graph: {
+    prerequisites: ['SQL y modelado de datos.', 'Comprende entidades, atributos y relaciones.'],
+    practice: ['Modelar un grafo de empresas y personas.', 'Encontrar componentes y puentes.', 'Resolver entidades con evidencia múltiple.'],
+    project: {
+      title: 'Red empresarial y resolución de entidades',
+      brief: 'Construye un grafo pequeño de empresas, socios, domicilios y proveedores; identifica comunidades y explica qué relaciones merecen revisión.',
+      deliverables: ['Modelo de nodos y aristas.', 'Tres consultas o recorridos.', 'Informe de hipótesis y evidencia faltante.'],
+      rubric: ['Distingue relación de identidad.', 'Evita inferir culpa por pertenencia.', 'Explica centralidad y contexto.'],
+      acceptedKeywords: ['nodo', 'relación', 'entidad', 'comunidad', 'evidencia'],
+      minimumMatches: 4
+    },
+    videos: []
+  },
+  security: {
+    prerequisites: ['Linux, redes y sistemas.', 'Programación básica para leer código.'],
+    practice: ['Hacer threat modeling de una aplicación.', 'Revisar autenticación y autorización.', 'Diseñar controles de mínimo privilegio y recuperación.'],
+    project: {
+      title: 'Threat model de VDMX Intelligence',
+      brief: 'Modela activos, actores, fronteras de confianza, amenazas y controles para un motor de riesgo con datos empresariales.',
+      deliverables: ['Diagrama de arquitectura.', 'Registro de amenazas priorizadas.', 'Plan de controles y evidencia de verificación.'],
+      rubric: ['Identifica activos críticos.', 'Relaciona amenaza, control y evidencia.', 'Incluye abuso interno y falla operacional.'],
+      acceptedKeywords: ['activo', 'amenaza', 'control', 'identidad', 'evidencia'],
+      minimumMatches: 4
+    },
+    videos: [{ title: 'OWASP Top 10 2025 explicado', channel: 'Aikido Security', videoId: 'Jzr0Jdnq_EI', why: 'Sirve como repaso visual de fallas de acceso, configuración, inyección, autenticación y logging.' }]
+  },
+  'security-analytics': {
+    prerequisites: ['Sistemas, redes y fundamentos de ciberseguridad.', 'Estadística descriptiva.'],
+    practice: ['Normalizar eventos de autenticación.', 'Construir un baseline por usuario y servicio.', 'Priorizar alertas con contexto y severidad.'],
+    project: {
+      title: 'Triage de una campaña de accesos anómalos',
+      brief: 'Analiza eventos de login, crea un baseline, correlaciona señales y redacta un informe de triage sin atribuir más de lo que prueban los datos.',
+      deliverables: ['Esquema de eventos.', 'Reglas de detección y excepciones.', 'Informe con línea de tiempo y próximos pasos.'],
+      rubric: ['Correlaciona tiempo, origen y actor.', 'Controla falsos positivos.', 'Distingue contención de atribución.'],
+      acceptedKeywords: ['baseline', 'login', 'correlación', 'alerta', 'triage'],
+      minimumMatches: 4
+    },
+    videos: [{ title: 'OWASP Top 10 2025 explicado', channel: 'Aikido Security', videoId: 'Jzr0Jdnq_EI', why: 'Conecta controles de aplicación con los eventos que después deben observarse en seguridad.' }]
+  },
+  osint: {
+    prerequisites: ['SQL y fundamentos de seguridad.', 'Escritura clara y criterio para fuentes.'],
+    practice: ['Evaluar confiabilidad y temporalidad.', 'Corroborar una identidad con fuentes independientes.', 'Registrar provenance y cadena de evidencia.'],
+    project: {
+      title: 'Expediente OSINT defendible',
+      brief: 'Investiga una entidad ficticia usando fuentes públicas, registra cada afirmación, conserva contexto y separa hechos, inferencias y dudas.',
+      deliverables: ['Matriz de fuentes.', 'Cronología de hallazgos.', 'Informe con citas, confianza y preguntas abiertas.'],
+      rubric: ['Cada afirmación tiene origen.', 'Incluye fecha y contexto.', 'No expone datos personales innecesarios.'],
+      acceptedKeywords: ['fuente', 'fecha', 'corrobor', 'evidencia', 'confianza'],
+      minimumMatches: 4
+    },
+    videos: []
+  },
+  'machine-learning': {
+    prerequisites: ['Python, SQL y estadística.', 'Álgebra básica y lectura de métricas.'],
+    practice: ['Crear un dataset sin leakage.', 'Comparar reglas y modelos.', 'Calibrar probabilidades y revisar umbrales.'],
+    project: {
+      title: 'Score de riesgo con supervisión humana',
+      brief: 'Construye un modelo o baseline de reglas, evalúalo fuera de muestra, analiza errores y define cuándo debe intervenir un analista.',
+      deliverables: ['Notebook o script reproducible.', 'Tabla de métricas y calibración.', 'Documento de límites, sesgos y monitoreo.'],
+      rubric: ['Evita leakage.', 'Reporta precision, recall y calibración.', 'Conecta umbral con costo y revisión humana.'],
+      acceptedKeywords: ['modelo', 'recall', 'precision', 'calibración', 'leakage'],
+      minimumMatches: 4
+    },
+    videos: [{ title: 'Regresión logística', channel: 'StatQuest with Josh Starmer', videoId: 'yIYKR4sgzI8', why: 'Explica visualmente un modelo interpretable para clasificación y scoring.' }]
+  },
+  engine: {
+    prerequisites: ['Completar módulos anteriores o demostrar sus competencias.', 'Capacidad para documentar decisiones técnicas.'],
+    practice: ['Diseñar contratos de datos.', 'Versionar señales y reglas.', 'Construir una evaluación reproducible con auditoría.'],
+    project: {
+      title: 'Capstone: VDMX Intelligence Engine',
+      brief: 'Integra datos, resolución de entidades, señales, score, explicación, revisión humana y monitoreo en un caso B2B completo.',
+      deliverables: ['Arquitectura y modelo de datos.', 'Pipeline ejecutable o prototipo.', 'Expediente de una contraparte.', 'Informe ejecutivo y plan de auditoría.'],
+      rubric: ['Trazabilidad de extremo a extremo.', 'Decisiones explicables y revisables.', 'Seguridad, calidad y operación incluidas.'],
+      acceptedKeywords: ['pipeline', 'entidad', 'señal', 'score', 'explicación', 'auditoría'],
+      minimumMatches: 5
+    },
+    videos: []
+  }
+};
+
 const modules: AcademyModule[] = baseModules.map((item) => ({
   ...item,
-  ...learningContent[item.id]
+  ...learningContent[item.id],
+  ...moduleDetails[item.id]
 }));
 
 const diagnosticItems = [
@@ -301,6 +483,13 @@ const diagnosticItems = [
   ['cyber', 'Ciberseguridad']
 ] as const;
 
+const learningPhases = [
+  { number: '01', title: 'Fundamentos técnicos', modules: 'Python · SQL · Sistemas', outcome: 'Leer, transformar y validar datos con criterio técnico.' },
+  { number: '02', title: 'Riesgo y evidencia', modules: 'Estadística · Underwriting · Fraude', outcome: 'Convertir señales en decisiones explicables.' },
+  { number: '03', title: 'Investigación y defensa', modules: 'Graph · Seguridad · OSINT', outcome: 'Investigar relaciones, amenazas y fuentes sin saltos lógicos.' },
+  { number: '04', title: 'Modelado e integración', modules: 'Security Analytics · ML · Engine', outcome: 'Construir un motor de inteligencia auditable.' }
+];
+
 const defaultState: AcademyState = {
   weeklyHours: 25,
   completed: {},
@@ -310,7 +499,9 @@ const defaultState: AcademyState = {
   exerciseResponses: {},
   exerciseResults: {},
   quizAnswers: {},
-  quizScores: {}
+  quizScores: {},
+  projectNotes: {},
+  projectResults: {}
 };
 
 function normalizeState(value: unknown): AcademyState {
@@ -330,7 +521,9 @@ function normalizeState(value: unknown): AcademyState {
     exerciseResponses: candidate.exerciseResponses && typeof candidate.exerciseResponses === 'object' ? candidate.exerciseResponses : {},
     exerciseResults: candidate.exerciseResults && typeof candidate.exerciseResults === 'object' ? candidate.exerciseResults : {},
     quizAnswers: candidate.quizAnswers && typeof candidate.quizAnswers === 'object' ? candidate.quizAnswers : {},
-    quizScores: candidate.quizScores && typeof candidate.quizScores === 'object' ? candidate.quizScores : {}
+    quizScores: candidate.quizScores && typeof candidate.quizScores === 'object' ? candidate.quizScores : {},
+    projectNotes: candidate.projectNotes && typeof candidate.projectNotes === 'object' ? candidate.projectNotes : {},
+    projectResults: candidate.projectResults && typeof candidate.projectResults === 'object' ? candidate.projectResults : {}
   };
 }
 
@@ -344,10 +537,11 @@ export const Academy: React.FC = () => {
   const [query, setQuery] = useState('');
   const [area, setArea] = useState('Todas');
   const [level, setLevel] = useState('Todos');
-  const [learningTab, setLearningTab] = useState<'lessons' | 'exercise' | 'test'>('lessons');
+  const [learningTab, setLearningTab] = useState<'lessons' | 'exercise' | 'test' | 'project'>('lessons');
   const [lessonIndex, setLessonIndex] = useState(0);
   const [exerciseDraft, setExerciseDraft] = useState('');
   const [quizDraft, setQuizDraft] = useState<Record<string, number>>({});
+  const [projectDraft, setProjectDraft] = useState('');
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedRef = useRef(false);
 
@@ -462,14 +656,16 @@ export const Academy: React.FC = () => {
   const activeExerciseResponse = state.exerciseResponses[activeModule.id] || '';
   const activeExercisePassed = Boolean(state.exerciseResults[activeModule.id]);
   const activeQuizScore = state.quizScores[activeModule.id];
+  const activeProjectPassed = Boolean(state.projectResults[activeModule.id]);
   const totalMilestones = modules.reduce((sum, item) => sum + item.outcomes.length, 0);
   const completedTotal = modules.reduce((sum, item) => sum + (state.completed[item.id]?.length || 0), 0);
   const totalLessons = modules.reduce((sum, item) => sum + item.lessons.length, 0);
   const completedLessonTotal = modules.reduce((sum, item) => sum + (state.lessonProgress[item.id]?.length || 0), 0);
   const passedExerciseTotal = modules.filter((item) => state.exerciseResults[item.id]).length;
   const passedQuizTotal = modules.filter((item) => (state.quizScores[item.id] || 0) >= 70).length;
-  const progressItems = totalMilestones + totalLessons + modules.length * 2;
-  const completedLearningItems = completedTotal + completedLessonTotal + passedExerciseTotal + passedQuizTotal;
+  const passedProjectTotal = modules.filter((item) => state.projectResults[item.id]).length;
+  const progressItems = totalMilestones + totalLessons + modules.length * 3;
+  const completedLearningItems = completedTotal + completedLessonTotal + passedExerciseTotal + passedQuizTotal + passedProjectTotal;
   const progress = Math.round((completedLearningItems / progressItems) * 100);
   const completedHours = Math.round(modules.reduce((sum, item) => sum + item.hours * ((state.completed[item.id]?.length || 0) / item.outcomes.length), 0));
   const months = Math.max(1, Math.round((1200 / (state.weeklyHours * 4.33)) * 10) / 10);
@@ -479,6 +675,7 @@ export const Academy: React.FC = () => {
     setLearningTab('lessons');
     setExerciseDraft(state.exerciseResponses[activeModule.id] || '');
     setQuizDraft(state.quizAnswers[activeModule.id] || {});
+    setProjectDraft(state.projectNotes[activeModule.id] || '');
   }, [activeModule.id]);
 
   const updateCompletion = (moduleId: string, index: number) => {
@@ -495,6 +692,7 @@ export const Academy: React.FC = () => {
     setLearningTab('lessons');
     setExerciseDraft(state.exerciseResponses[moduleId] || '');
     setQuizDraft(state.quizAnswers[moduleId] || {});
+    setProjectDraft(state.projectNotes[moduleId] || '');
   };
 
   const markLessonComplete = () => {
@@ -528,6 +726,18 @@ export const Academy: React.FC = () => {
       quizScores: { ...previous.quizScores, [activeModule.id]: score }
     }));
     setNotice(`Test calificado: ${score}%.`);
+  };
+
+  const submitProject = () => {
+    const response = projectDraft.trim().toLowerCase();
+    const matches = activeModule.project.acceptedKeywords.filter((keyword) => response.includes(keyword.toLowerCase())).length;
+    const passed = response.length >= 80 && matches >= activeModule.project.minimumMatches;
+    setState((previous) => ({
+      ...previous,
+      projectNotes: { ...previous.projectNotes, [activeModule.id]: projectDraft },
+      projectResults: { ...previous.projectResults, [activeModule.id]: passed }
+    }));
+    setNotice(passed ? 'Proyecto entregado. Usa la rúbrica para hacer una revisión crítica.' : 'El proyecto necesita más evidencia. Completa el brief y cubre la rúbrica antes de entregarlo.');
   };
 
   const signOut = () => {
@@ -591,6 +801,11 @@ export const Academy: React.FC = () => {
         </section>
 
         <section className="space-y-4">
+          <div><p className="text-xs font-bold uppercase tracking-wider text-primary">Ruta de dominio</p><h2 className="mt-2 text-2xl font-bold">De programar a defender decisiones</h2><p className="mt-1 max-w-3xl text-sm leading-6 text-slate-400">Cada fase combina teoría, práctica, evaluación y un proyecto. El objetivo final no es memorizar herramientas: es poder explicar una decisión de riesgo con datos, código, contexto y límites.</p></div>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{learningPhases.map((phase) => <article key={phase.number} className="rounded-xl border border-slate-800 bg-slate-900 p-4"><span className="text-2xl font-black text-primary/60">{phase.number}</span><h3 className="mt-3 font-bold">{phase.title}</h3><p className="mt-2 text-xs font-semibold uppercase tracking-wider text-slate-500">{phase.modules}</p><p className="mt-3 text-sm leading-6 text-slate-400">{phase.outcome}</p></article>)}</div>
+        </section>
+
+        <section className="space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-bold">Plan de estudios</h2><p className="mt-1 text-sm text-slate-400">Selecciona un módulo para ver sus objetivos y marcar avances.</p></div><div className="flex flex-wrap gap-2"><input aria-label="Buscar módulos" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar" className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none focus:border-primary" /><select aria-label="Filtrar por área" value={area} onChange={(event) => setArea(event.target.value)} className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"><option>Todas</option><option>Datos</option><option>Riesgo</option><option>Ciberseguridad</option></select><select aria-label="Filtrar por nivel" value={level} onChange={(event) => setLevel(event.target.value)} className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"><option>Todos</option><option>Fundamentos</option><option>Intermedio</option><option>Avanzado</option></select></div></div>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{filteredModules.map((item) => { const done = state.completed[item.id]?.length || 0; const lessonsDone = state.lessonProgress[item.id]?.length || 0; const quizScore = state.quizScores[item.id]; const itemProgress = Math.round(((lessonsDone + done + (state.exerciseResults[item.id] ? 1 : 0) + (quizScore !== undefined && quizScore >= 70 ? 1 : 0)) / (item.lessons.length + item.outcomes.length + 2)) * 100); return <button key={item.id} type="button" onClick={() => selectModule(item.id)} className={`text-left rounded-xl border p-4 transition-colors ${state.activeModuleId === item.id ? 'border-primary bg-primary/10' : 'border-slate-800 bg-slate-900 hover:border-slate-600'}`}><div className="flex items-start justify-between gap-3"><span className="text-xs font-bold uppercase tracking-wider text-primary">{item.area}</span><span className="text-xs text-slate-500">{item.hours} h</span></div><h3 className="mt-3 font-bold">{item.title}</h3><p className="mt-2 min-h-10 text-sm text-slate-400">{item.summary}</p><div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800"><div className="h-full bg-primary" style={{ width: `${itemProgress}%` }} /></div><p className="mt-2 text-xs text-slate-500">{lessonsDone}/{item.lessons.length} lecciones · {done}/{item.outcomes.length} objetivos{quizScore !== undefined ? ` · Test ${quizScore}%` : ''}</p></button>; })}</div>
         </section>
@@ -602,12 +817,13 @@ export const Academy: React.FC = () => {
               <span className="rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300">{completedLessons.length}/{activeModule.lessons.length} lecciones</span>
             </div>
 
-            <div className="mt-6 grid grid-cols-3 gap-2 border-b border-slate-800">
+            <div className="mt-6 grid grid-cols-2 gap-2 border-b border-slate-800 md:grid-cols-4">
               {[
                 ['lessons', 'Lecciones'],
                 ['exercise', 'Ejercicio'],
-                ['test', 'Test']
-              ].map(([tab, label]) => <button key={tab} type="button" onClick={() => setLearningTab(tab as 'lessons' | 'exercise' | 'test')} className={learningTab === tab ? 'border-b-2 border-primary px-3 py-3 text-sm font-semibold text-white' : 'border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-slate-500 hover:text-slate-300'}>{label}</button>)}
+                ['test', 'Test'],
+                ['project', 'Proyecto y videos']
+              ].map(([tab, label]) => <button key={tab} type="button" onClick={() => setLearningTab(tab as 'lessons' | 'exercise' | 'test' | 'project')} className={learningTab === tab ? 'border-b-2 border-primary px-3 py-3 text-sm font-semibold text-white' : 'border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-slate-500 hover:text-slate-300'}>{label}</button>)}
             </div>
 
             {learningTab === 'lessons' && <div className="mt-5 space-y-5">
@@ -659,6 +875,47 @@ export const Academy: React.FC = () => {
                 <button type="button" onClick={gradeQuiz} disabled={Object.keys(quizDraft).length < activeModule.quiz.length} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-40">Calificar test</button>
                 {activeQuizScore !== undefined && <span className={activeQuizScore >= 70 ? 'text-sm font-semibold text-emerald-300' : 'text-sm font-semibold text-amber-300'}>Resultado: {activeQuizScore}%</span>}
               </div>
+            </div>}
+
+            {learningTab === 'project' && <div className="mt-5 space-y-5">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Antes de empezar</p>
+                  <ul className="mt-3 space-y-2 text-sm text-slate-300">{activeModule.prerequisites.map((item) => <li key={item} className="flex gap-2"><span className="text-primary">→</span>{item}</li>)}</ul>
+                </div>
+                <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Práctica sugerida</p>
+                  <ul className="mt-3 space-y-2 text-sm text-slate-300">{activeModule.practice.map((item) => <li key={item} className="flex gap-2"><span className="text-emerald-400">+</span>{item}</li>)}</ul>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-primary">Proyecto aplicado</p>
+                <h3 className="mt-2 text-xl font-bold">{activeModule.project.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{activeModule.project.brief}</p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Entregables</p>
+                  <ul className="mt-3 space-y-2 text-sm text-slate-300">{activeModule.project.deliverables.map((item) => <li key={item} className="flex gap-2"><span className="text-primary">•</span>{item}</li>)}</ul>
+                </div>
+                <div className="rounded-lg border border-slate-800 bg-slate-950 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Rúbrica de dominio</p>
+                  <ul className="mt-3 space-y-2 text-sm text-slate-300">{activeModule.project.rubric.map((item) => <li key={item} className="flex gap-2"><span className="text-emerald-400">✓</span>{item}</li>)}</ul>
+                </div>
+              </div>
+              <textarea value={projectDraft} onChange={(event) => setProjectDraft(event.target.value)} placeholder="Documenta tu solución, decisiones, evidencia y limitaciones..." rows={9} className="w-full rounded-lg border border-slate-700 bg-slate-950 p-4 text-sm leading-6 text-slate-100 outline-none focus:border-primary" />
+              <div className="flex flex-wrap items-center gap-3">
+                <button type="button" onClick={submitProject} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600">Entregar proyecto</button>
+                {activeProjectPassed && <span className="text-sm font-semibold text-emerald-300">Proyecto entregado y guardado</span>}
+              </div>
+              {activeModule.videos.length > 0 && <div className="border-t border-slate-800 pt-5">
+                <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-primary">Apoyo visual</p><h3 className="mt-2 text-lg font-bold">Videos seleccionados para este módulo</h3></div><span className="text-xs text-slate-500">Se abren en modo privacidad mejorada</span></div>
+                <div className="mt-4 grid gap-4">{activeModule.videos.map((video) => <article key={video.videoId} className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+                  <div className="aspect-video bg-black"><iframe className="h-full w-full" src={'https://www.youtube-nocookie.com/embed/' + video.videoId} title={video.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
+                  <div className="p-4"><p className="text-sm font-semibold text-slate-200">{video.title}</p><p className="mt-1 text-xs text-slate-500">{video.channel}</p><p className="mt-3 text-sm leading-6 text-slate-400">{video.why}</p></div>
+                </article>)}</div>
+              </div>}
+              {activeModule.videos.length === 0 && <div className="rounded-lg border border-slate-800 bg-slate-950 p-4 text-sm leading-6 text-slate-400">Este módulo prioriza práctica y fuentes de trabajo. Cuando exista un video realmente útil y estable para el tema, se añadirá aquí; mientras tanto no sustituimos la evidencia por contenido superficial.</div>}
             </div>}
 
             <div className="mt-7 border-t border-slate-800 pt-5">
