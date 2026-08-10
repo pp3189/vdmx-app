@@ -27,6 +27,12 @@ type AcademyLesson = {
   objective: string;
   content: string;
   example?: string;
+  reading?: { title: string; text: string }[];
+  walkthrough?: string[];
+  mistakes?: string[];
+  practice?: string;
+  expectedOutput?: string;
+  sources?: { title: string; url: string }[];
 };
 
 type AcademyExercise = {
@@ -565,10 +571,173 @@ const supplementalLessons: Record<string, AcademyLesson[]> = {
   ]
 };
 
+const pythonChapterContent: Record<string, Pick<AcademyLesson, 'reading' | 'walkthrough' | 'mistakes' | 'practice' | 'expectedOutput'>> = {
+  'python-1': {
+    reading: [
+      { title: 'Una variable no es solo un nombre', text: 'En Python una variable es una referencia a un valor. Ese valor puede ser un número, texto, lista, diccionario o un valor ausente. En análisis de riesgo importa saber qué representa cada valor, de dónde salió y en qué momento fue observado. debt no significa lo mismo si viene de un estado financiero auditado que si fue escrito manualmente en un formulario.' },
+      { title: 'De dato a señal', text: 'Una señal es una observación que merece atención, no un veredicto. Por ejemplo, deuda/EBITDA mayor que 4 puede activar HIGH_LEVERAGE, pero no demuestra por sí sola que una empresa sea mala contraparte. El código debe guardar el valor calculado, la regla que se activó, la fuente y una explicación que el analista pueda revisar.' },
+      { title: 'El contrato mental del programa', text: 'Antes de escribir if, define la entrada esperada, los casos inválidos y la salida. Pregunta: qué campos necesito, qué tipos deben tener, qué hago si faltan y cómo distinguir una señal de una conclusión. Esta disciplina es la base para pasar de scripts pequeños a un motor de inteligencia.' },
+      { title: 'Cómo leer cada pieza del código', text: 'En debt_to_ebitda = debt / ebitda, debt y ebitda son variables, / es un operador de división, y el resultado es un valor numérico guardado bajo otro nombre. En if debt_to_ebitda > 4, if inicia una condición, > compara dos valores y 4 es un literal numérico. flags.append("HIGH_LEVERAGE") llama al método append para agregar un texto a una lista. Entender cada pieza evita copiar patrones sin comprenderlos.' },
+      { title: 'Valores, literales y constantes', text: 'Un valor es un dato que existe durante la ejecución: 5.4, "MX", True o None. Un literal es la forma escrita de crear ese valor en el código. Python no impone constantes como otros lenguajes; por convención se escriben en MAYÚSCULAS, por ejemplo LEVERAGE_LIMIT = 4, para indicar que una regla no debe cambiar durante el análisis. En VDMX conviene versionar ese límite porque modifica qué expedientes reciben una señal.' }
+    ],
+    walkthrough: ['Define una pregunta verificable: ¿la empresa muestra apalancamiento elevado?', 'Identifica entradas: debt, ebitda, company_id y fuente.', 'Nombra cada variable, operador, condición y función del ejemplo antes de ejecutarlo.', 'Calcula una medida sin esconder errores de calidad.', 'Devuelve señal, evidencia y nivel de confianza; no devuelvas solamente True.'],
+    mistakes: ['Tratar cualquier campo faltante como cero.', 'Confundir un umbral con una decisión final.', 'Usar nombres ambiguos como x, data o result en reglas importantes.'],
+    practice: 'Escribe tres ejemplos de datos y tres ejemplos de conclusiones que podrían aparecer en un expediente B2B. Explica qué regla podría conectar cada dato con una señal.',
+    expectedOutput: 'Una tabla con columnas: dato, fuente, transformación, señal posible y limitación.'
+  },
+  'python-2': {
+    reading: [
+      { title: 'Tipos que cambian el significado', text: 'Python distingue entre texto, números, booleanos, listas, diccionarios y None. El texto "100000" no se comporta igual que el número 100000; si comparas o divides sin convertirlo, puedes obtener errores o resultados silenciosamente incorrectos. La validación de tipos es parte del análisis, no una tarea secundaria.' },
+      { title: 'Diccionarios para expedientes', text: 'Un expediente JSON suele convertirse en un diccionario: cada clave representa un atributo. Las listas representan colecciones de relaciones, documentos o pagos. El acceso directo record["ebitda"] falla si no existe la clave; record.get("ebitda") permite tratar la ausencia de forma explícita, pero todavía debes validar si el valor es utilizable.' },
+      { title: 'Normalización antes del cálculo', text: 'Normalizar significa convertir representaciones distintas a una forma común: quitar espacios, transformar fechas, convertir montos a números y estandarizar países o monedas. Hazlo antes de calcular razones para que la lógica de riesgo no tenga que resolver problemas de formato a mitad de una decisión.' },
+      { title: 'Funciones como contratos pequeños', text: 'Una función agrupa instrucciones con un nombre y puede recibir parámetros para producir un resultado. def validate_record(record) define la función; record es el parámetro; return entrega la salida. Separar una función de validación de una función de cálculo permite probar cada contrato y evita que una regla de riesgo tenga que adivinar si el dato ya fue limpiado.' }
+    ],
+    walkthrough: ['Carga un registro y enumera las claves que realmente contiene.', 'Comprueba campos obligatorios y tipos.', 'Convierte valores válidos y registra los que no pueden convertirse.', 'Define qué recibe y qué devuelve validate_record antes de implementarla.', 'Entrega un registro normalizado junto con señales de calidad.'],
+    mistakes: ['Suponer que un JSON válido contiene todos los campos.', 'Convertir errores de conversión a cero.', 'Mezclar normalización y decisión en una sola línea difícil de probar.'],
+    practice: 'Diseña una función validate_record que reciba un diccionario y devuelva valid, errors y normalized_record.',
+    expectedOutput: 'Para un expediente incompleto, la función debe reportar cada campo faltante sin detener todo el procesamiento.'
+  },
+  'python-3': {
+    reading: [
+      { title: 'Leer no es confiar', text: 'JSON es un formato de intercambio, no una garantía de calidad. Puede tener una estructura correcta y aun así contener fechas imposibles, números negativos donde no corresponden o campos con nombres equivocados. Un programa de riesgo debe separar error de formato, dato faltante y dato sospechoso.' },
+      { title: 'Excepciones con intención', text: 'try y except sirven para decidir qué hacer cuando una operación falla. Capturar Exception y continuar sin registrar el problema es peligroso: transforma una falla visible en una conclusión incompleta. Captura errores concretos, conserva el identificador del expediente y devuelve una señal de calidad que pueda auditarse.' },
+      { title: 'Evidencia de procesamiento', text: 'Cada expediente debería poder responder qué archivo se leyó, cuándo, con qué versión del script y qué campos fueron rechazados. Esta evidencia vuelve reproducible el análisis y evita que un resultado cambie sin explicación entre una ejecución y otra.' }
+    ],
+    walkthrough: ['Abre el archivo con encoding definido.', 'Intenta parsear JSON y captura JSONDecodeError.', 'Valida la estructura mínima y los tipos.', 'Guarda un resultado con status, errors y record_id.'],
+    mistakes: ['Usar except vacío.', 'Borrar el archivo inválido sin conservar evidencia.', 'Tratar un dato faltante como prueba de fraude.'],
+    practice: 'Crea un lector que procese una lista de expedientes, continúe después de un error y entregue un resumen de válidos, inválidos y campos faltantes.',
+    expectedOutput: 'Un resumen reproducible con total_processed, valid_count, invalid_count y errors_by_field.'
+  },
+  'python-4': {
+    reading: [
+      { title: 'Un pipeline tiene etapas', text: 'Un pipeline de análisis es una secuencia de transformaciones: entrada, validación, normalización, features, señales y salida. Cada etapa debe tener una responsabilidad clara. Si una función lee archivos, calcula razones, imprime alertas y decide aprobación, será difícil saber dónde nació un error.' },
+      { title: 'Idempotencia y reanudación', text: 'Un pipeline puede detenerse por un archivo corrupto, una API caída o un límite de tiempo. Diseñarlo para reanudarse implica identificar cada expediente, guardar resultados parciales y no duplicar señales cuando se vuelve a ejecutar. Esto importa cuando se procesan miles de empresas.' },
+      { title: 'Contratos entre etapas', text: 'La salida de validate debe ser una entrada entendible para normalize; la salida de normalize debe tener nombres y tipos consistentes para features. Documenta esos contratos con ejemplos y pruebas. Así podrás reemplazar una fuente sin reescribir todas las reglas.' }
+    ],
+    walkthrough: ['Dibuja el flujo antes de codificar.', 'Define una estructura de resultado por etapa.', 'Procesa un expediente completo y observa cada salida.', 'Procesa varios expedientes y conserva errores individuales.'],
+    mistakes: ['Crear una función de cientos de líneas.', 'Perder el record_id al transformar datos.', 'Reprocesar sin controlar duplicados.'],
+    practice: 'Divide el laboratorio B2B en funciones load_records, validate_record, build_features, evaluate_signals y write_results.',
+    expectedOutput: 'Cada función debe poder probarse de forma aislada y el resultado final debe contener señales y evidencia.'
+  },
+  'python-5': {
+    reading: [
+      { title: 'Automatizar una regla no la hace verdadera', text: 'Una regla es una hipótesis operacional: bajo ciertas condiciones queremos priorizar una revisión. Antes de convertirla en código, define qué evento intenta detectar, qué casos legítimos puede marcar y qué evidencia adicional necesita un analista.' },
+      { title: 'Confianza no es probabilidad mágica', text: 'Un nivel de confianza en este contexto debe representar la calidad y suficiencia de la evidencia disponible. Puedes usar una escala documentada: alta cuando los campos son completos y la fuente es confiable; media cuando hay señales consistentes pero falta corroboración; baja cuando el resultado depende de datos incompletos.' },
+      { title: 'Salida explicable', text: 'Una salida útil puede tener flag, rule_id, evidence, confidence y next_action. Esa estructura permite mostrar qué ocurrió y qué debe hacer una persona después. Un booleano aislado no permite investigar ni defender una decisión.' }
+    ],
+    walkthrough: ['Define HIGH_LEVERAGE y PAYMENT_RISK por separado.', 'Calcula cada señal solo con entradas válidas.', 'Agrega evidencia concreta, como debt_to_ebitda y late_payments.', 'Asigna una confianza basada en calidad y corroboración.'],
+    mistakes: ['Poner confidence = 1 porque la regla se ejecutó.', 'Usar una sola señal para declarar fraude.', 'No indicar qué debe revisar el analista.'],
+    practice: 'Diseña el esquema de salida de una señal para MX-002 y MX-004 del dataset. Incluye status, flags, evidence, confidence y next_action.',
+    expectedOutput: 'MX-002 debe tener señales explicadas; MX-004 debe ir a REVIEW por ebitda igual a cero.'
+  },
+  'python-6': {
+    reading: [
+      { title: 'Las pruebas son parte del análisis', text: 'Una prueba automatizada no demuestra que un sistema sea perfecto; demuestra que una expectativa conocida sigue cumpliéndose. En riesgo esto es crítico porque una pequeña modificación de un umbral puede afectar cientos de expedientes.' },
+      { title: 'Casos normales y casos límite', text: 'Para HIGH_LEVERAGE prueba un valor claramente menor, uno igual al umbral, uno mayor, EBITDA cero, deuda negativa y tipos incorrectos. El caso límite revela si entendiste la regla o solo probaste el ejemplo feliz.' },
+      { title: 'Regresión y confianza operativa', text: 'Cuando un bug se corrige, conviértelo en una prueba de regresión. Así no volverá a aparecer silenciosamente. Las pruebas también sirven como documentación ejecutable para quien mantenga el sistema después de ti.' }
+    ],
+    walkthrough: ['Escribe el comportamiento esperado en lenguaje natural.', 'Convierte cada caso en una función test_.', 'Ejecuta la suite después de cambiar una regla.', 'Lee el fallo como una pista sobre el contrato roto.'],
+    mistakes: ['Probar solo que el programa no se cae.', 'No probar el valor igual al umbral.', 'Cambiar la prueba para ocultar un bug real.'],
+    practice: 'Escribe una matriz de pruebas para leverage_flag y payment_risk con al menos seis casos y el resultado esperado de cada uno.',
+    expectedOutput: 'La matriz debe cubrir casos válidos, límites, faltantes, cero y tipos incorrectos.'
+  },
+  'python-7': {
+    reading: [
+      { title: 'Pandas es una herramienta, no el razonamiento', text: 'DataFrame permite inspeccionar y transformar muchas filas con expresiones compactas. Esa comodidad puede ocultar errores: una columna puede tener strings, nulos o unidades mezcladas. Antes de calcular, usa shape, dtypes, isna y describe para conocer el dataset.' },
+      { title: 'Transformaciones auditables', text: 'Evita modificar todo en una cadena imposible de explicar. Crea columnas con nombres claros, conserva las originales y anota qué representa cada transformación. Si sustituyes EBITDA cero por NA, esa decisión debe quedar documentada porque cambia qué casos pueden recibir una señal.' },
+      { title: 'Agrupar sin perder la unidad de análisis', text: 'groupby resume datos, pero puede cambiar la unidad de análisis de empresa a país, sector o periodo. Pregunta siempre qué representa cada fila del resultado y si todavía puedes volver al expediente original.' }
+    ],
+    walkthrough: ['Carga el CSV y revisa filas, columnas y tipos.', 'Convierte columnas numéricas y cuenta nulos.', 'Calcula una feature con control de división por cero.', 'Filtra señales y conserva company_id como trazabilidad.'],
+    mistakes: ['Usar fillna(0) sin justificarlo.', 'Sobrescribir la columna original.', 'Agrupar y luego olvidar qué entidad representa cada fila.'],
+    practice: 'Escribe las operaciones Pandas necesarias para obtener debt_to_ebitda y filtrar las empresas que requieren revisión.',
+    expectedOutput: 'La salida debe conservar company_id, las features calculadas, flags y una columna de calidad.'
+  },
+  'python-8': {
+    reading: [
+      { title: 'Una función de dominio expresa una decisión', text: 'leverage_flag no es una función matemática genérica: representa una regla de negocio. Su nombre, parámetros y salida deben permitir que un analista entienda qué se evaluó. Las funciones de dominio son el punto donde el conocimiento de riesgo entra al código.' },
+      { title: 'De booleano a objeto explicable', text: 'Devolver True o False es suficiente para un ejercicio inicial, pero un sistema profesional necesita devolver contexto. Una salida como {flag, rule_id, evidence, confidence} puede ser almacenada, mostrada y revisada.' },
+      { title: 'Composición de reglas', text: 'Cada regla debe poder probarse por separado. Después puedes componerlas en assess_record, que reúne señales sin esconder cuál falló. Esto permite activar, desactivar o versionar reglas con menor riesgo.' }
+    ],
+    walkthrough: ['Define la firma de la función y sus precondiciones.', 'Calcula la feature dentro de una función segura.', 'Devuelve evidencia y estado, no solo un booleano.', 'Combina varias reglas en una evaluación de expediente.'],
+    mistakes: ['Usar variables globales.', 'Mezclar impresión en pantalla con lógica de decisión.', 'Cambiar el significado de una salida sin actualizar pruebas.'],
+    practice: 'Implementa leverage_flag, payment_risk y assess_record con una salida JSON explicable.',
+    expectedOutput: 'assess_record debe devolver signals como lista y quality_issues como lista separada.'
+  },
+  'python-9': {
+    reading: [
+      { title: 'Una entrega técnica debe poder reproducirse', text: 'Otra persona debe poder clonar o copiar tu trabajo, instalar dependencias, ejecutar un comando y obtener un resultado comparable. Un README no es decoración: especifica entrada, salida, versión de Python, supuestos y limitaciones.' },
+      { title: 'Calidad de código que importa', text: 'Usa nombres, funciones pequeñas, type hints cuando ayuden y logs con contexto. El objetivo no es decorar el código, sino reducir el costo de revisar un resultado y localizar un error.' },
+      { title: 'Automatización con límites', text: 'Un script que genera señales debe tener límites de volumen, control de permisos, manejo de reintentos y una ruta de revisión. La automatización responsable deja claro cuándo no sabe suficiente.' }
+    ],
+    walkthrough: ['Escribe un README antes de entregar.', 'Añade un comando reproducible y datos de ejemplo.', 'Registra resultados y errores por expediente.', 'Incluye una sección de límites y próximos pasos.'],
+    mistakes: ['Depender de rutas locales o secretos.', 'Entregar solo una captura de pantalla.', 'Ocultar datos que hicieron fallar la ejecución.'],
+    practice: 'Prepara una estructura de repositorio para el laboratorio: src, tests, data, README y results.',
+    expectedOutput: 'Una persona nueva debe entender cómo ejecutar, probar y revisar el proyecto sin preguntarte por mensajes privados.'
+  },
+  'python-10': {
+    reading: [
+      { title: 'El capstone reúne todas las habilidades', text: 'El proyecto final simula una necesidad real: recibir expedientes JSON, validar campos, calcular razones, producir señales y conservar evidencia. No se evalúa solo si el script corre; se evalúa si el resultado puede ser cuestionado y defendido.' },
+      { title: 'Contrato de entrada', text: 'Define el esquema mínimo: company_id, annual_sales, debt, ebitda, late_payments y metadata de fuente. Declara qué ocurre cuando falta un campo, cuando una moneda no coincide o cuando el periodo no es comparable.' },
+      { title: 'Decisión y nivel de confianza', text: 'Una señal puede producir REVIEW, no aprobación o rechazo automático. La confianza debe explicar calidad de fuente, completitud, consistencia y corroboración. La salida final debe conservar datos, reglas, evidencia, fecha y versión del script.' }
+    ],
+    walkthrough: ['Escribe el esquema y tres expedientes de prueba.', 'Construye validación y normalización.', 'Implementa tres razones y dos señales.', 'Genera un reporte JSON con evidence, confidence y next_action.', 'Defiende qué no puede concluir el sistema.'],
+    mistakes: ['Llamar fraude a una señal.', 'No versionar reglas.', 'No conservar el input y la evidencia que produjo el resultado.'],
+    practice: 'Completa el laboratorio y redacta una revisión técnica de una página: qué hace tu script, qué detecta, qué no puede detectar y cómo lo desplegarías con controles.',
+    expectedOutput: 'Un proyecto ejecutable, probado y documentado con al menos diez expedientes y resultados revisables.'
+  }
+};
+
+const pythonChapterSources: Record<string, { title: string; url: string }[]> = {
+  'python-1': [
+    { title: 'Python: tutorial oficial', url: 'https://docs.python.org/3/tutorial/' },
+    { title: 'Tipos integrados y valores', url: 'https://docs.python.org/3/library/stdtypes.html' }
+  ],
+  'python-2': [
+    { title: 'Tipos integrados: diccionarios, listas y None', url: 'https://docs.python.org/3/library/stdtypes.html' },
+    { title: 'Tutorial oficial: estructuras de datos', url: 'https://docs.python.org/3/tutorial/datastructures.html' }
+  ],
+  'python-3': [
+    { title: 'Entrada y salida: JSON y archivos', url: 'https://docs.python.org/3/tutorial/inputoutput.html' },
+    { title: 'Errores y excepciones', url: 'https://docs.python.org/3/tutorial/errors.html' }
+  ],
+  'python-4': [
+    { title: 'Tutorial oficial: módulos y organización', url: 'https://docs.python.org/3/tutorial/modules.html' },
+    { title: 'Tutorial oficial de Python', url: 'https://docs.python.org/3/tutorial/' }
+  ],
+  'python-5': [
+    { title: 'Tipos y valores integrados', url: 'https://docs.python.org/3/library/stdtypes.html' },
+    { title: 'Errores y excepciones', url: 'https://docs.python.org/3/tutorial/errors.html' }
+  ],
+  'python-6': [
+    { title: 'Errores y excepciones', url: 'https://docs.python.org/3/tutorial/errors.html' },
+    { title: 'Tutorial oficial de Python', url: 'https://docs.python.org/3/tutorial/' }
+  ],
+  'python-7': [
+    { title: 'Tipos integrados y secuencias', url: 'https://docs.python.org/3/library/stdtypes.html' },
+    { title: 'Entrada y salida de datos', url: 'https://docs.python.org/3/tutorial/inputoutput.html' }
+  ],
+  'python-8': [
+    { title: 'Definiendo funciones', url: 'https://docs.python.org/3/tutorial/controlflow.html#defining-functions' },
+    { title: 'Tutorial oficial: módulos', url: 'https://docs.python.org/3/tutorial/modules.html' }
+  ],
+  'python-9': [
+    { title: 'Tutorial oficial de Python', url: 'https://docs.python.org/3/tutorial/' },
+    { title: 'Constantes integradas', url: 'https://docs.python.org/3/library/constants.html' }
+  ],
+  'python-10': [
+    { title: 'Tutorial oficial de Python', url: 'https://docs.python.org/3/tutorial/' },
+    { title: 'Entrada, salida y JSON', url: 'https://docs.python.org/3/tutorial/inputoutput.html' },
+    { title: 'Errores y excepciones', url: 'https://docs.python.org/3/tutorial/errors.html' }
+  ]
+};
+
 const modules: AcademyModule[] = baseModules.map((item) => ({
   ...item,
   ...learningContent[item.id],
-  lessons: [...learningContent[item.id].lessons, ...supplementalLessons[item.id]],
+  lessons: [...learningContent[item.id].lessons, ...supplementalLessons[item.id]].map((lesson) => ({
+    ...lesson,
+    ...(item.id === 'python' ? { ...pythonChapterContent[lesson.id], sources: pythonChapterSources[lesson.id] } : {})
+  })),
   ...moduleDetails[item.id]
 }));
 
@@ -772,6 +941,21 @@ export const Academy: React.FC = () => {
   const activeLabTasks = state.labTasks[activeModule.id] || [];
   const activeCheckpoint = activeModule.quiz[activeLessonIndex % activeModule.quiz.length];
   const activeChapterChecked = Boolean(state.chapterChecks[activeLesson.id]);
+  const studyPrompt = useMemo(() => [
+    'Actua como tutor senior del modulo activo aplicado a Risk Intelligence, analisis de riesgo B2B y ciberseguridad.',
+    'Estoy estudiando el curso VDMX Academy. No asumas conocimientos previos y no reduzcas la explicacion a un parrafo.',
+    'Modulo: ' + activeModule.title,
+    'Capitulo: ' + activeLesson.title,
+    'Objetivo: ' + activeLesson.objective,
+    'Enfoque: dominar las bases necesarias del modulo para poder construir, investigar o defender sistemas de inteligencia de riesgo. Si aparece Python, explica su sintaxis; si aparece SQL, explica tablas y relaciones; si aparece seguridad, explica activos, amenazas y controles; si aparece estadistica o modelos, explica variables, supuestos y limites.',
+    'Explicame primero cada termino que aparezca: que es, para que sirve, que tipo de valor o entidad maneja, como se representa, que recibe, que devuelve, que errores puede producir y como se aplica a un expediente de riesgo.',
+    'Relaciona siempre la teoria con company_id, debt, ebitda, annual_sales, late_payments, fuentes, calidad de datos, evidencia, confianza y next_action cuando sea pertinente.',
+    'Usa esta secuencia: 1) mapa conceptual; 2) explicacion paso a paso; 3) ejemplo pequeno; 4) ejemplo aplicado a VDMX; 5) errores frecuentes y casos limite; 6) ejercicio guiado; 7) preguntas de comprobacion.',
+    'No me des la solucion completa antes de que lo intente. Hazme una pregunta por vez, espera mi respuesta, detecta mis conceptos equivocados y corrige con precision.',
+    'Cuando revises mi codigo, evalua legibilidad, tipos, validacion, division entre cero, manejo de faltantes, trazabilidad, evidencia, confianza y pruebas. Indica que esta bien, que falla, por que falla y como lo corregiria.',
+    'Distingue siempre entre dato, transformacion, senal, hipotesis y decision. No llames fraude a una senal automatica.',
+    'Cita la documentacion oficial de Python cuando expliques una regla del lenguaje. Termina cada sesion con un resumen de lo que ya domino, lo que debo practicar y una proxima tarea concreta.'
+  ].join('\n\n'), [activeModule.id, activeLesson.id]);
   const totalMilestones = modules.reduce((sum, item) => sum + item.outcomes.length, 0);
   const completedTotal = modules.reduce((sum, item) => sum + (state.completed[item.id]?.length || 0), 0);
   const totalLessons = modules.reduce((sum, item) => sum + item.lessons.length, 0);
@@ -842,6 +1026,15 @@ export const Academy: React.FC = () => {
       chapterChecks: { ...previous.chapterChecks, [activeLesson.id]: passed }
     }));
     setNotice(passed ? 'Comprobación correcta. Ya puedes continuar.' : 'Revisa la explicación y vuelve a intentarlo.');
+  };
+
+  const copyStudyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(studyPrompt);
+      setNotice('Prompt de estudio copiado.');
+    } catch {
+      setNotice('No se pudo copiar automaticamente. Abre el prompt y copialo manualmente.');
+    }
   };
 
   const reviewExercise = () => {
@@ -995,11 +1188,14 @@ export const Academy: React.FC = () => {
                   <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800"><div className="h-full bg-primary" style={{ width: ((activeLessonIndex + 1) / activeModule.lessons.length * 100) + '%' }} /></div>
                 </div>
                 <article className="space-y-5 rounded-xl border border-slate-800 bg-slate-950 p-5">
-                  <section><p className="text-xs font-bold uppercase tracking-wider text-primary">1. La idea central</p><p className="mt-3 whitespace-pre-line text-base leading-8 text-slate-200">{activeLesson.content}</p></section>
-                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">2. Ejemplo guiado</p><p className="mt-2 text-sm leading-6 text-slate-400">Lee el ejemplo y explica con tus palabras qué entrada recibe, qué transformación aplica y qué evidencia produce.</p>{activeLesson.example && <pre className="mt-4 overflow-x-auto rounded-lg border border-slate-800 bg-slate-900 p-4 text-sm leading-7 text-blue-200"><code>{activeLesson.example}</code></pre>}</section>
-                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">3. Conexión con VDMX</p><p className="mt-3 text-sm leading-7 text-slate-300">{activeModule.project.brief}</p><div className="mt-4 rounded-lg border-l-2 border-amber-400 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100"><strong>Pregunta de analista:</strong> ¿qué dato faltante o falso positivo podría hacer que esta explicación fuera incorrecta?</div></section>
-                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">4. Actividad de aplicación</p><p className="mt-3 text-sm leading-7 text-slate-200">{activeModule.exercise.prompt}</p><button type="button" onClick={() => { setChapterOpen(false); setLearningTab('exercise'); }} className="mt-4 rounded-lg border border-primary px-4 py-2 text-sm font-bold text-blue-200 hover:bg-primary/10">Ir al ejercicio del módulo</button></section>
-                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">5. Comprueba tu comprensión</p><fieldset className="mt-3"><legend className="text-sm font-semibold text-slate-200">{activeCheckpoint.question}</legend><div className="mt-3 space-y-2">{activeCheckpoint.options.map((option, optionIndex) => <label key={option} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-800 p-3 text-sm text-slate-300 hover:bg-slate-900"><input type="radio" name={'chapter-' + activeLesson.id} checked={chapterAnswer === optionIndex} onChange={() => setChapterAnswer(optionIndex)} className="mt-1 accent-primary" />{option}</label>)}</div></fieldset><div className="mt-4 flex flex-wrap items-center gap-3"><button type="button" onClick={checkChapter} disabled={chapterAnswer === null} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-40">Comprobar respuesta</button>{state.chapterAnswers[activeLesson.id] !== undefined && <span className={activeChapterChecked ? 'text-sm font-semibold text-emerald-300' : 'text-sm font-semibold text-amber-300'}>{activeChapterChecked ? 'Correcto' : 'Revisa esta idea'}</span>}</div>{state.chapterAnswers[activeLesson.id] !== undefined && <p className="mt-3 text-sm leading-6 text-slate-400">{activeCheckpoint.explanation}</p>}</section>
+                  <section className="rounded-lg border border-primary/30 bg-primary/5 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-primary">Tutor de estudio</p><h4 className="mt-2 text-base font-bold text-slate-100">Profundiza este capitulo con GPT</h4><p className="mt-2 text-sm leading-6 text-slate-300">El prompt obliga a explicar la base, conectar cada termino con VDMX, hacerte practicar y corregir tus errores sin darte la respuesta antes de tiempo.</p></div><button type="button" onClick={() => void copyStudyPrompt()} className="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-blue-600">Copiar prompt</button></div><details className="mt-4"><summary className="cursor-pointer text-sm font-semibold text-blue-200">Ver prompt operativo</summary><pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-6 text-slate-300">{studyPrompt}</pre></details></section>
+                  {activeLesson.sources && <section className="rounded-lg border border-slate-800 bg-slate-900/60 p-4"><p className="text-xs font-bold uppercase tracking-wider text-primary">Fuentes para profundizar</p><p className="mt-2 text-sm text-slate-400">Lecturas oficiales para ampliar la base del lenguaje sin perder el foco de análisis de riesgo.</p><ul className="mt-3 space-y-2">{activeLesson.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer" className="text-sm font-semibold text-blue-200 underline decoration-blue-400/40 underline-offset-4 hover:text-white">{source.title}</a></li>)}</ul></section>}
+                  <section><p className="text-xs font-bold uppercase tracking-wider text-primary">1. La idea central</p><p className="mt-3 whitespace-pre-line text-base leading-8 text-slate-200">{activeLesson.content}</p>{activeLesson.reading && <div className="mt-6 space-y-5">{activeLesson.reading.map((part) => <div key={part.title}><h4 className="text-base font-bold text-slate-100">{part.title}</h4><p className="mt-2 text-sm leading-7 text-slate-300">{part.text}</p></div>)}</div>}</section>
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">2. Ejemplo guiado</p><p className="mt-2 text-sm leading-6 text-slate-400">No lo leas como una respuesta para copiar. Sigue cada paso y explica qué ocurre con los datos.</p>{activeLesson.example && <pre className="mt-4 overflow-x-auto rounded-lg border border-slate-800 bg-slate-900 p-4 text-sm leading-7 text-blue-200"><code>{activeLesson.example}</code></pre>}{activeLesson.walkthrough && <ol className="mt-4 space-y-2 text-sm leading-6 text-slate-300">{activeLesson.walkthrough.map((step) => <li key={step} className="flex gap-3"><span className="font-bold text-primary">→</span><span>{step}</span></li>)}</ol>}</section>
+                  {activeLesson.mistakes && <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">3. Errores comunes</p><ul className="mt-3 space-y-2 text-sm leading-6 text-slate-300">{activeLesson.mistakes.map((mistake) => <li key={mistake} className="flex gap-3"><span className="text-amber-300">!</span><span>{mistake}</span></li>)}</ul></section>}
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">4. Conexión con VDMX</p><p className="mt-3 text-sm leading-7 text-slate-300">{activeModule.project.brief}</p><div className="mt-4 rounded-lg border-l-2 border-amber-400 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100"><strong>Pregunta de analista:</strong> ¿qué dato faltante o falso positivo podría hacer que esta explicación fuera incorrecta?</div></section>
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">5. Actividad de aplicación</p><p className="mt-3 text-sm leading-7 text-slate-200">{activeLesson.practice || activeModule.exercise.prompt}</p>{activeLesson.expectedOutput && <p className="mt-3 text-sm leading-6 text-slate-400"><strong className="text-slate-200">Resultado esperado:</strong> {activeLesson.expectedOutput}</p>}<button type="button" onClick={() => { setChapterOpen(false); setLearningTab('exercise'); }} className="mt-4 rounded-lg border border-primary px-4 py-2 text-sm font-bold text-blue-200 hover:bg-primary/10">Ir al ejercicio del módulo</button></section>
+                  <section className="border-t border-slate-800 pt-5"><p className="text-xs font-bold uppercase tracking-wider text-primary">6. Comprueba tu comprensión</p><fieldset className="mt-3"><legend className="text-sm font-semibold text-slate-200">{activeCheckpoint.question}</legend><div className="mt-3 space-y-2">{activeCheckpoint.options.map((option, optionIndex) => <label key={option} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-800 p-3 text-sm text-slate-300 hover:bg-slate-900"><input type="radio" name={'chapter-' + activeLesson.id} checked={chapterAnswer === optionIndex} onChange={() => setChapterAnswer(optionIndex)} className="mt-1 accent-primary" />{option}</label>)}</div></fieldset><div className="mt-4 flex flex-wrap items-center gap-3"><button type="button" onClick={checkChapter} disabled={chapterAnswer === null} className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-40">Comprobar respuesta</button>{state.chapterAnswers[activeLesson.id] !== undefined && <span className={activeChapterChecked ? 'text-sm font-semibold text-emerald-300' : 'text-sm font-semibold text-amber-300'}>{activeChapterChecked ? 'Correcto' : 'Revisa esta idea'}</span>}</div>{state.chapterAnswers[activeLesson.id] !== undefined && <p className="mt-3 text-sm leading-6 text-slate-400">{activeCheckpoint.explanation}</p>}</section>
                 </article>
                 <div className="flex flex-wrap items-center justify-between gap-3"><button type="button" onClick={markLessonComplete} className={completedLessons.includes(activeLesson.id) ? 'rounded-lg bg-emerald-500/15 px-4 py-2 text-sm font-bold text-emerald-300' : 'rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-blue-600'}>{completedLessons.includes(activeLesson.id) ? 'Capítulo completado' : 'Marcar capítulo completado'}</button><div className="flex gap-2"><button type="button" disabled={activeLessonIndex === 0} onClick={() => openChapter(Math.max(0, activeLessonIndex - 1))} className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 disabled:opacity-40">Anterior</button><button type="button" disabled={activeLessonIndex === activeModule.lessons.length - 1} onClick={() => openChapter(Math.min(activeModule.lessons.length - 1, activeLessonIndex + 1))} className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 disabled:opacity-40">Siguiente capítulo</button></div></div>
               </div> : <>
