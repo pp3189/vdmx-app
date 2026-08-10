@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { createHash } from 'crypto';
 import { db } from './db.js';
 
 import { fileURLToPath } from 'url';
@@ -56,7 +57,7 @@ app.use(cors({
         if (!origin) return callback(null, true);
 
         // Allow ANY localhost origin in development (fixes port mismatches like 5173 vs 5174)
-        if (origin.startsWith('http://localhost:')) {
+        if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
             return callback(null, true);
         }
 
@@ -228,6 +229,43 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
 // app.use(cors()); // Moved to top
 app.use(express.json());
+
+const academyProfileKey = (syncCode) => createHash('sha256')
+    .update(syncCode.trim())
+    .digest('hex');
+
+// Academy progress is keyed by a user-provided sync code. The raw code is never stored.
+app.post('/api/academy/progress', async (req, res) => {
+    const { syncCode, state } = req.body || {};
+
+    if (typeof syncCode !== 'string' || syncCode.trim().length < 8 || syncCode.trim().length > 128) {
+        return res.status(400).json({ error: 'El código de sincronización debe tener entre 8 y 128 caracteres.' });
+    }
+
+    try {
+        const profileKey = academyProfileKey(syncCode);
+
+        if (state === undefined) {
+            const saved = await db.getAcademyProgress(profileKey);
+            return res.json({ state: saved?.state || null, updatedAt: saved?.updated_at || null });
+        }
+
+        if (!state || typeof state !== 'object' || Array.isArray(state)) {
+            return res.status(400).json({ error: 'El estado de progreso no es válido.' });
+        }
+
+        const serializedState = JSON.stringify(state);
+        if (serializedState.length > 250000) {
+            return res.status(413).json({ error: 'El estado de progreso excede el tamaño permitido.' });
+        }
+
+        const saved = await db.saveAcademyProgress(profileKey, state);
+        return res.json({ state: saved.state, updatedAt: saved.updated_at });
+    } catch (error) {
+        console.error('Academy progress error:', error);
+        return res.status(500).json({ error: 'No se pudo sincronizar el progreso.' });
+    }
+});
 
 // Create Checkout Session
 app.post('/create-checkout-session', async (req, res) => {

@@ -9,6 +9,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DB_PATH = path.join(__dirname, 'cases.json');
+const ACADEMY_DB_PATH = path.join(__dirname, 'academy-progress.json');
 
 const isProduction = !!process.env.DATABASE_URL;
 
@@ -33,6 +34,9 @@ if (isProduction) {
     // Initialize Local DB if not exists
     if (!fs.existsSync(DB_PATH)) {
         fs.writeFileSync(DB_PATH, JSON.stringify({ cases: [] }, null, 2));
+    }
+    if (!fs.existsSync(ACADEMY_DB_PATH)) {
+        fs.writeFileSync(ACADEMY_DB_PATH, JSON.stringify({}, null, 2));
     }
 }
 
@@ -129,6 +133,59 @@ export const db = {
             }
             return null;
         }
+    },
+    getAcademyProgress: async (profileKey) => {
+        if (isProduction) {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS academy_progress (
+                    profile_key TEXT PRIMARY KEY,
+                    state JSONB NOT NULL,
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                );
+            `);
+            const res = await pool.query(
+                'SELECT state, updated_at FROM academy_progress WHERE profile_key = $1',
+                [profileKey]
+            );
+            return res.rows[0] || null;
+        }
+
+        try {
+            const data = JSON.parse(fs.readFileSync(ACADEMY_DB_PATH, 'utf8'));
+            return data[profileKey] || null;
+        } catch (err) {
+            return null;
+        }
+    },
+    saveAcademyProgress: async (profileKey, state) => {
+        if (isProduction) {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS academy_progress (
+                    profile_key TEXT PRIMARY KEY,
+                    state JSONB NOT NULL,
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                );
+            `);
+            const res = await pool.query(`
+                INSERT INTO academy_progress (profile_key, state, updated_at)
+                VALUES ($1, $2, NOW())
+                ON CONFLICT (profile_key)
+                DO UPDATE SET state = EXCLUDED.state, updated_at = NOW()
+                RETURNING state, updated_at;
+            `, [profileKey, state]);
+            return res.rows[0];
+        }
+
+        let data = {};
+        try {
+            data = JSON.parse(fs.readFileSync(ACADEMY_DB_PATH, 'utf8'));
+        } catch (err) {
+            data = {};
+        }
+        const updatedAt = new Date().toISOString();
+        data[profileKey] = { state, updated_at: updatedAt };
+        fs.writeFileSync(ACADEMY_DB_PATH, JSON.stringify(data, null, 2));
+        return { state, updated_at: updatedAt };
     },
     deleteCase: async (id) => {
         if (isProduction) {
