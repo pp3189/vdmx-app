@@ -731,13 +731,184 @@ const pythonChapterSources: Record<string, { title: string; url: string }[]> = {
   ]
 };
 
+type ChapterGuide = {
+  vocabulary: string;
+  application: string;
+  workflow: string[];
+  mistakes: string[];
+  practice: string;
+  expected: string;
+  sources: { title: string; url: string }[];
+};
+
+const moduleChapterGuides: Record<string, ChapterGuide> = {
+  sql: {
+    vocabulary: 'Debes distinguir tabla, fila, columna, clave primaria, clave foranea, JOIN, filtro, agregacion, GROUP BY, HAVING, NULL y cardinalidad. Una fila representa una observacion y no necesariamente una empresa: puede representar un domicilio, pago o relacion.',
+    application: 'En VDMX SQL sirve para construir una vista reproducible del expediente. Una consulta puede encontrar empresas relacionadas, resumir pagos o localizar concentraciones, pero el resultado debe conservar la clave de la entidad, las fechas y el filtro que lo produjo.',
+    workflow: ['Define la unidad de analisis y la pregunta en lenguaje natural.', 'Identifica las tablas, claves y campos que realmente necesitas.', 'Construye la consulta por etapas y revisa cuantas filas produce cada JOIN.', 'Interpreta el resultado y separa coincidencia, senal y conclusion.'],
+    mistakes: ['Confundir una fila duplicada con una empresa adicional.', 'Usar JOIN sin comprobar cardinalidad y multiplicar montos.', 'Tratar NULL como cero o como ausencia de riesgo.', 'Guardar solo el resultado sin conservar la consulta y sus filtros.'],
+    practice: 'Toma el capitulo actual y escribe una consulta sobre expedientes B2B. Explica que representa cada fila, por que elegiste cada JOIN y que dato podria producir un falso positivo.',
+    expected: 'Una consulta ejecutable, una explicacion de su unidad de analisis y una nota sobre duplicados, NULL, fechas y limitaciones.',
+    sources: [
+      { title: 'Tutorial oficial de PostgreSQL y SQL', url: 'https://www.postgresql.org/docs/current/tutorial.html' },
+      { title: 'Referencia oficial de SELECT', url: 'https://www.postgresql.org/docs/current/sql-select.html' }
+    ]
+  },
+  systems: {
+    vocabulary: 'Debes distinguir proceso, usuario, permiso, archivo, servicio, puerto, DNS, TCP, TLS, HTTP, timestamp y log. Un proceso es una ejecucion activa; un permiso describe que puede hacer una identidad sobre un recurso; un log registra una observacion del sistema.',
+    application: 'En VDMX esta base permite seguir desde el origen de una solicitud hasta el servicio que consulto un expediente. Los sistemas no solo deben funcionar: deben dejar rastros suficientes para explicar accesos, errores, cambios y recuperacion.',
+    workflow: ['Dibuja el recorrido entre actor, red, servicio, proceso y dato.', 'Identifica que identidad ejecuta cada paso y que permiso necesita.', 'Relaciona eventos por tiempo, origen, accion y resultado.', 'Decide que evidencia falta antes de afirmar una causa.'],
+    mistakes: ['Llamar ataque a cualquier error o acceso denegado.', 'Confundir autenticacion con autorizacion.', 'Analizar un log aislado sin ventana temporal ni contexto.', 'Guardar tokens, contrasenas o datos sensibles en registros.'],
+    practice: 'Construye una linea de tiempo de un login anomalo: origen, DNS, TLS, API, autenticacion, autorizacion, proceso y resultado. Marca que elementos son hechos y cuales son hipotesis.',
+    expected: 'Un diagrama o tabla de eventos con actor, origen, tiempo, accion, resultado y una hipotesis limitada por la evidencia disponible.',
+    sources: [
+      { title: 'RFC 9110: semantica HTTP', url: 'https://www.rfc-editor.org/rfc/rfc9110' },
+      { title: 'Manual de paginas Linux', url: 'https://man7.org/linux/man-pages/' }
+    ]
+  },
+  statistics: {
+    vocabulary: 'Debes distinguir poblacion, muestra, variable, observacion, media, mediana, percentil, distribucion, correlacion, causalidad, tasa base, falso positivo e incertidumbre. Una medida describe datos bajo ciertos supuestos; no convierte automaticamente una observacion en una verdad.',
+    application: 'En VDMX la estadistica ayuda a decidir que es frecuente, raro o incierto dentro de una poblacion comparable. El analisis debe declarar periodo, segmento, tamano de muestra y costo de equivocarse.',
+    workflow: ['Define la poblacion y la unidad de observacion.', 'Describe la distribucion antes de elegir un umbral.', 'Compara la senal con una tasa base y una muestra adecuada.', 'Comunica incertidumbre y separa asociacion de causalidad.'],
+    mistakes: ['Usar la media cuando los extremos dominan la distribucion.', 'Confundir correlacion con causa.', 'Ignorar la tasa base de un evento poco frecuente.', 'Comparar grupos con periodos o definiciones distintas.'],
+    practice: 'Analiza una senal de riesgo con una tabla de poblacion, casos positivos y falsos positivos. Explica que cambia si la tasa base baja de 10% a 1%.',
+    expected: 'Una explicacion con denominadores claros, tasa base, matriz de errores y una conclusion que indique el nivel de incertidumbre.',
+    sources: [
+      { title: 'NIST/SEMATECH e-Handbook of Statistical Methods', url: 'https://www.itl.nist.gov/div898/handbook/' },
+      { title: 'Documentacion oficial de SciPy Statistics', url: 'https://docs.scipy.org/doc/scipy/reference/stats.html' }
+    ]
+  },
+  underwriting: {
+    vocabulary: 'Debes distinguir balance, estado de resultados, flujo de efectivo, liquidez, solvencia, rentabilidad, capital de trabajo, deuda, EBITDA, margen, concentracion y exposicion. Un ratio es una relacion entre magnitudes; su significado depende de periodo, industria, moneda y calidad de los datos.',
+    application: 'En VDMX underwriting convierte informacion financiera y comercial en una decision condicionada. El objetivo no es producir un numero aislado, sino entender capacidad de pago, fuentes de repago, sensibilidad y mitigaciones.',
+    workflow: ['Define la obligacion, periodo y moneda que estas evaluando.', 'Reconcilia balance, resultados, flujo y notas antes de calcular ratios.', 'Compara tendencia, pares y escenario adverso.', 'Propone limite, condicion o monitoreo con evidencia y fecha de revision.'],
+    mistakes: ['Confundir crecimiento de ventas con generacion de caja.', 'Aplicar un umbral universal sin contexto sectorial.', 'Ignorar concentracion de clientes o dependencia de refinanciamiento.', 'Emitir aprobacion o rechazo sin declarar supuestos.'],
+    practice: 'Redacta un memo de contraparte con tres indicadores, dos preguntas de corroboracion y una condicion de credito. Explica que dato cambiaria tu decision.',
+    expected: 'Un memo con datos de origen, ratios, interpretacion, escenarios, limitaciones y una decision proporcional a la evidencia.',
+    sources: [
+      { title: 'SEC: guia de estados financieros', url: 'https://www.sec.gov/education/smallbusiness/goingpublic/financialstatements' },
+      { title: 'IFRS Foundation: marco conceptual', url: 'https://www.ifrs.org/issued-standards/list-of-standards/conceptual-framework/' }
+    ]
+  },
+  fraud: {
+    vocabulary: 'Debes distinguir dato, senal, anomalia, red flag, regla, umbral, baseline, precision, recall, falso positivo, falso negativo, triage y disposicion. Una senal prioriza una investigacion; no prueba por si sola intencion, identidad ni fraude.',
+    application: 'En VDMX el objetivo es detectar cambios o combinaciones que merecen revision sin convertir el sistema en una maquina de acusaciones. Cada alerta necesita evidencia, contexto, accion posterior y aprendizaje de los cierres.',
+    workflow: ['Define el evento objetivo y la poblacion normal.', 'Elige una ventana, una medida y un umbral justificable.', 'Prueba casos legitimos, casos positivos y casos cercanos al corte.', 'Mide utilidad, documenta el cierre y ajusta con control de versiones.'],
+    mistakes: ['Usar un outlier como sinonimo de fraude.', 'Optimizar una metrica y ocultar el costo de otros errores.', 'No considerar como puede evadirse la regla.', 'Cerrar alertas sin guardar evidencia y razon de disposicion.'],
+    practice: 'Disena una red flag de velocidad o concentracion para expedientes B2B. Define regla, evidencia, excepciones, accion de triage y criterio de cierre.',
+    expected: 'Una especificacion de deteccion con umbral, poblacion, casos limite, evidencia requerida, nivel de confianza y ruta de revision.',
+    sources: [
+      { title: 'NIST: Small Business Cybersecurity', url: 'https://www.nist.gov/itl/smallbusinesscyber' },
+      { title: 'NIST AI Risk Management Framework', url: 'https://www.nist.gov/itl/ai-risk-management-framework' }
+    ]
+  },
+  graph: {
+    vocabulary: 'Debes distinguir nodo, arista, propiedad, direccion, camino, componente, centralidad, comunidad, resolucion de entidades, temporalidad y provenance. Una relacion es una afirmacion con origen, fecha y confianza; dibujarla no la vuelve verdadera.',
+    application: 'En VDMX un grafo conecta empresas, personas, domicilios, telefonos, cuentas y documentos para descubrir estructuras que una tabla separada puede ocultar. El resultado debe permitir volver desde una senal hasta las relaciones que la produjeron.',
+    workflow: ['Define las entidades y relaciones que la pregunta necesita.', 'Asigna identificadores y conserva fuente, fecha y tipo de enlace.', 'Calcula una metrica y explica que prioriza, no que demuestra.', 'Corrobora relaciones relevantes con atributos independientes.'],
+    mistakes: ['Unir entidades por un nombre parecido sin atributo fuerte.', 'Confundir centralidad con culpabilidad.', 'Perder direccion o fecha de una relacion.', 'Mostrar una visualizacion sin provenance ni nivel de confianza.'],
+    practice: 'Modela tres empresas que comparten domicilio y representante. Enumera nodos, aristas, fuentes, fechas, hipotesis y datos que necesitas para corroborar el enlace.',
+    expected: 'Un modelo de grafo revisable con identificadores, relaciones fechadas, provenance, metricas interpretadas y limitaciones.',
+    sources: [
+      { title: 'Neo4j: fundamentos de grafos', url: 'https://neo4j.com/docs/getting-started/' },
+      { title: 'Neo4j Graph Data Science', url: 'https://neo4j.com/docs/graph-data-science/current/' }
+    ]
+  },
+  security: {
+    vocabulary: 'Debes distinguir activo, amenaza, vulnerabilidad, riesgo, control, impacto, probabilidad, autenticacion, autorizacion, confidencialidad, integridad y disponibilidad. Una vulnerabilidad es una debilidad; el riesgo depende de que un actor pueda explotarla y del impacto sobre un activo.',
+    application: 'En VDMX seguridad protege expedientes, scores, credenciales, fuentes y decisiones. El threat model debe mostrar como una alteracion de datos o permisos podria cambiar una evaluacion y que controles reducen esa posibilidad.',
+    workflow: ['Lista activos y asigna propietario, sensibilidad e impacto.', 'Identifica actores, superficies, amenazas y rutas de abuso.', 'Selecciona controles preventivos, detectivos y correctivos.', 'Define evidencia de que cada control existe y funciona.'],
+    mistakes: ['Enumerar vulnerabilidades sin relacionarlas con activos.', 'Creer que estar autenticado autoriza cualquier expediente.', 'Guardar secretos en frontend, logs o repositorios.', 'Confiar en un control sin probar su operacion.'],
+    practice: 'Construye un threat model para el expediente de VDMX: activos, actores, amenazas, abuso posible, impacto, control y evidencia de verificacion.',
+    expected: 'Una matriz de amenazas priorizada por impacto y probabilidad, con controles verificables y riesgos residuales explicados.',
+    sources: [
+      { title: 'OWASP Top 10', url: 'https://owasp.org/www-project-top-ten/' },
+      { title: 'NIST Cybersecurity Framework 2.0', url: 'https://www.nist.gov/cyberframework' }
+    ]
+  },
+  'security-analytics': {
+    vocabulary: 'Debes distinguir evento, telemetria, esquema comun, baseline, deteccion, correlacion, severidad, confianza, triage, MTTD y MTTR. Una alerta es una salida de deteccion; un incidente es una situacion investigada con impacto y respuesta.',
+    application: 'En VDMX Security Analytics transforma eventos de autenticacion, permisos, exportaciones y errores en senales priorizadas. La utilidad depende de calidad de datos, contexto, cobertura y capacidad real de responder.',
+    workflow: ['Define el evento y normaliza actor, objeto, origen, tiempo y resultado.', 'Construye una hipotesis detectable con contexto y excepciones.', 'Correlaciona eventos y calcula severidad sin perder evidencia.', 'Mide cierre, falsos positivos y tiempo de respuesta.'],
+    mistakes: ['Confundir volumen de alertas con seguridad.', 'No normalizar relojes, usuarios o nombres de eventos.', 'Crear detecciones imposibles de investigar.', 'No medir que ocurre despues de generar la alerta.'],
+    practice: 'Escribe una deteccion de exportacion anomala de expedientes: esquema de eventos, ventana, condiciones, excepciones, evidencia y accion de triage.',
+    expected: 'Una regla de deteccion probada con datos normales y anomalos, mas metricas de calidad y una ruta de respuesta.',
+    sources: [
+      { title: 'MITRE ATT&CK: conceptos y tecnicas', url: 'https://attack.mitre.org/resources/' },
+      { title: 'Sigma: formato abierto para detecciones', url: 'https://sigmahq.io/docs/' }
+    ]
+  },
+  osint: {
+    vocabulary: 'Debes distinguir afirmacion, observacion, fuente primaria, fuente secundaria, corroboracion, contexto, fecha de consulta, provenance, identidad y limitacion. Una URL no es automaticamente evidencia suficiente: hay que conservar que dice, cuando, quien la publico y como se relaciona con el expediente.',
+    application: 'En VDMX OSINT ayuda a ampliar y corroborar un expediente empresarial sin mezclar hechos con interpretaciones. La investigacion debe ser reproducible, proporcional y cuidadosa con datos personales y fuentes desactualizadas.',
+    workflow: ['Formula la afirmacion concreta que necesitas verificar.', 'Busca fuentes independientes y registra consulta, fecha y contexto.', 'Compara calidad, cercania al hecho, intereses y contradicciones.', 'Escribe observacion, evaluacion, confianza y aquello que no puedes afirmar.'],
+    mistakes: ['Tomar un resultado de busqueda como prueba final.', 'Confundir homonimos o perfiles con identidad confirmada.', 'Elegir solo fuentes que confirman la hipotesis.', 'Recolectar datos personales que no son necesarios.'],
+    practice: 'Crea una ficha de investigacion para una empresa: afirmacion, fuentes, observaciones, corroboracion, contradicciones, confianza y limitaciones.',
+    expected: 'Un expediente OSINT reproducible con cadena de evidencia, fuentes fechadas, razonamiento separado y minimizacion de datos.',
+    sources: [
+      { title: 'Bellingcat: guia de herramientas', url: 'https://bellingcat.gitbook.io/toolkit' },
+      { title: 'Berkeley Protocol on Digital Open Source Investigations', url: 'https://humanrights.berkeley.edu/programs-projects/berkeley-protocol-on-digital-open-source-investigations/' }
+    ]
+  },
+  'machine-learning': {
+    vocabulary: 'Debes distinguir feature, etiqueta, observacion, poblacion, entrenamiento, validacion, prueba, umbral, precision, recall, calibracion, leakage, sesgo y drift. Un modelo estima una relacion aprendida de datos; no reemplaza el contrato de entrada, la evidencia ni la responsabilidad de la decision.',
+    application: 'En VDMX un modelo puede priorizar riesgo o estimar probabilidad, pero debe usar solo informacion disponible al momento de decidir. La salida necesita explicacion, monitoreo, limites y una ruta de revision cuando la incertidumbre sea alta.',
+    workflow: ['Define unidad, evento objetivo y momento de decision.', 'Construye features con origen, fecha, transformacion y faltantes.', 'Separa entrenamiento y evaluacion sin leakage.', 'Mide por segmento, calibra, monitorea drift y documenta uso permitido.'],
+    mistakes: ['Usar datos posteriores a la decision.', 'Confundir accuracy con utilidad para el negocio.', 'Ocultar sesgo o diferencias entre segmentos.', 'Desplegar un score sin monitorear distribucion y resultados.'],
+    practice: 'Disena un dataset para riesgo de contraparte: unidad de fila, etiqueta, fecha de corte, tres features, fuente, transformaciones, metricas y limites de uso.',
+    expected: 'Un esquema de dataset y una ficha de modelo que expliquen datos, metricas, segmentos, riesgos, version y supervision humana.',
+    sources: [
+      { title: 'Guia oficial de scikit-learn', url: 'https://scikit-learn.org/stable/user_guide.html' },
+      { title: 'NIST AI Risk Management Framework', url: 'https://www.nist.gov/itl/ai-risk-management-framework' }
+    ]
+  },
+  engine: {
+    vocabulary: 'Debes distinguir esquema, contrato, validacion, normalizacion, feature, regla, senal, decision, provenance, version, auditoria, idempotencia y monitoreo. El motor no es una sola funcion: es una cadena de etapas con entradas, salidas, errores y responsables.',
+    application: 'En VDMX Intelligence Engine integras fuentes, expedientes, relaciones, reglas y modelos para producir una evaluacion defendible. El resultado debe poder reproducirse despues, explicar por que cambio y detenerse cuando la evidencia no es suficiente.',
+    workflow: ['Define el contrato de entrada y la unidad de evaluacion.', 'Procesa validacion, normalizacion y features conservando trazabilidad.', 'Ejecuta reglas y modelos versionados con evidencia y confianza.', 'Entrega decision, limites, monitoreo, revision humana y auditoria.'],
+    mistakes: ['Mezclar adquisicion, calculo y decision en una funcion gigante.', 'Perder version de reglas, datos o fuentes.', 'Convertir datos faltantes en conclusiones de riesgo.', 'Automatizar una decision irreversible sin control humano.'],
+    practice: 'Dibuja la arquitectura del motor VDMX desde fuente hasta decision. Para cada etapa define entrada, salida, error, version, propietario y evidencia.',
+    expected: 'Un diseno de pipeline auditable con contratos, versionado, manejo de errores, senales explicables, confianza y monitoreo.',
+    sources: [
+      { title: 'JSON Schema: contratos de datos', url: 'https://json-schema.org/learn/getting-started-step-by-step' },
+      { title: 'NIST AI Risk Management Framework', url: 'https://www.nist.gov/itl/ai-risk-management-framework' }
+    ]
+  }
+};
+
+const applyChapterGuide = (moduleId: string, lessons: AcademyLesson[]) => {
+  const guide = moduleChapterGuides[moduleId];
+  if (!guide) return lessons;
+  return lessons.map((lesson) => ({
+    ...lesson,
+    reading: [
+      { title: 'Que significa este capitulo', text: lesson.title + ' busca que puedas ' + lesson.objective.toLowerCase() + ' La idea central de la leccion es: ' + lesson.content },
+      { title: 'Vocabulario que debes dominar', text: guide.vocabulary },
+      { title: 'Como se aplica en VDMX', text: guide.application },
+      { title: 'Que debes poder defender', text: 'No basta con ejecutar un ejemplo. Debes poder explicar que representa cada entrada, que transformacion ocurre, que resultado se produce, que evidencia lo respalda y que no puede concluirse. En este capitulo el producto esperado es: ' + guide.expected }
+    ],
+    walkthrough: [
+      'Formula una pregunta de ' + lesson.title.toLowerCase() + ' que pueda responderse con evidencia.',
+      'Define la unidad de analisis, las entradas y el resultado que esperas observar.',
+      ...guide.workflow,
+      'Escribe la limitacion principal y una pregunta que otro analista pueda revisar.'
+    ],
+    mistakes: guide.mistakes,
+    practice: guide.practice + ' Aterrizalo especificamente en el tema "' + lesson.title + '".',
+    expectedOutput: guide.expected,
+    sources: guide.sources
+  }));
+};
+
 const modules: AcademyModule[] = baseModules.map((item) => ({
   ...item,
   ...learningContent[item.id],
-  lessons: [...learningContent[item.id].lessons, ...supplementalLessons[item.id]].map((lesson) => ({
-    ...lesson,
-    ...(item.id === 'python' ? { ...pythonChapterContent[lesson.id], sources: pythonChapterSources[lesson.id] } : {})
-  })),
+  lessons: item.id === 'python'
+    ? [...learningContent[item.id].lessons, ...supplementalLessons[item.id]].map((lesson) => ({
+      ...lesson,
+      ...(pythonChapterContent[lesson.id] ? { ...pythonChapterContent[lesson.id], sources: pythonChapterSources[lesson.id] } : {})
+    }))
+    : applyChapterGuide(item.id, [...learningContent[item.id].lessons, ...supplementalLessons[item.id]]),
   ...moduleDetails[item.id]
 }));
 
