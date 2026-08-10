@@ -469,9 +469,73 @@ const moduleDetails: Record<string, Pick<AcademyModule, 'prerequisites' | 'pract
   }
 };
 
+const supplementalLessons: Record<string, AcademyLesson[]> = {
+  python: [
+    { id: 'python-4', title: 'Diseño de pipelines', objective: 'Encadenar pasos sin perder trazabilidad.', content: 'Un pipeline debe poder reanudarse, repetirse y explicar qué ocurrió en cada etapa. Conserva entradas, salidas, versión de la regla y errores; evita una función gigante que mezcle lectura, cálculo y decisión.', example: 'raw -> validated -> normalized -> features -> signals' },
+    { id: 'python-5', title: 'Pruebas y calidad', objective: 'Probar reglas antes de confiar en sus resultados.', content: 'Prueba casos normales, límites, datos faltantes y entradas maliciosas. Una regla de riesgo debe fallar de forma visible y tener ejemplos que otra persona pueda revisar.', example: 'assert leverage_flag(500, 100) is True\nassert leverage_flag(0, 0) is False' },
+    { id: 'python-6', title: 'Automatización responsable', objective: 'Automatizar tareas repetibles con controles.', content: 'Automatizar no significa decidir sin supervisión. Define permisos, logs, límites de volumen, reintentos y una salida para revisión humana cuando la evidencia sea insuficiente.', example: 'if confidence < 0.7:\n    route_to_review(case)' }
+  ],
+  sql: [
+    { id: 'sql-4', title: 'CTE y consultas legibles', objective: 'Construir consultas por etapas.', content: 'Una CTE permite nombrar pasos intermedios: entidades limpias, relaciones válidas y señales agregadas. Esto facilita revisar el razonamiento y cambiar una etapa sin esconder la lógica.', example: 'WITH clean AS (...), signals AS (...)\nSELECT * FROM signals;' },
+    { id: 'sql-5', title: 'Índices y rendimiento', objective: 'Entender por qué una consulta escala o se vuelve lenta.', content: 'El rendimiento depende de filtros, cardinalidad, índices y volumen. Usa EXPLAIN, mide antes y después, y no optimices eliminando validaciones que protegen la interpretación.', example: 'EXPLAIN ANALYZE\nSELECT ...;' },
+    { id: 'sql-6', title: 'Datos temporales', objective: 'Analizar cambios sin mezclar periodos.', content: 'Fechas de constitución, actualización, transacción y consulta no significan lo mismo. Usa ventanas temporales y evita usar información posterior a la decisión, porque produce leakage analítico.', example: 'WHERE observed_at <= decision_at' }
+  ],
+  systems: [
+    { id: 'systems-4', title: 'Procesos y superficies de ataque', objective: 'Relacionar servicios con activos y permisos.', content: 'Un servicio expuesto es una superficie, no una vulnerabilidad automática. Identifica qué escucha, quién lo ejecuta, qué datos toca y qué controles limitan su impacto.', example: 'service -> identity -> permissions -> data' },
+    { id: 'systems-5', title: 'HTTP y APIs', objective: 'Interpretar solicitudes y respuestas como evidencia.', content: 'Método, ruta, headers, autenticación, código de respuesta y latencia permiten reconstruir comportamiento. No guardes secretos en logs; redacta tokens y datos personales.', example: 'request: actor + route + method\nresponse: status + latency + result' },
+    { id: 'systems-6', title: 'Resiliencia y recuperación', objective: 'Diseñar para fallas sin perder evidencia.', content: 'Backups, timeouts, colas, idempotencia y recuperación forman parte de la seguridad. Prueba restauraciones; un backup que nunca se restaura es una suposición, no un control.', example: 'failure -> detect -> contain -> recover -> learn' }
+  ],
+  statistics: [
+    { id: 'statistics-4', title: 'Muestreo y sesgo', objective: 'Reconocer cuándo los datos no representan la población.', content: 'Una muestra puede estar sesgada por selección, supervivencia o disponibilidad. Antes de calcular un score pregunta quién quedó fuera, cuándo se observó y qué comportamiento induce el proceso.', example: 'population != observed_sample' },
+    { id: 'statistics-5', title: 'Intervalos y estabilidad', objective: 'Comunicar incertidumbre de una estimación.', content: 'Una tasa calculada con pocos casos puede cambiar mucho. Los intervalos y la comparación por periodos evitan tratar un número puntual como una constante universal.', example: 'estimate + uncertainty_range' },
+    { id: 'statistics-6', title: 'Experimentos de reglas', objective: 'Comparar una señal sin autoengañarse.', content: 'Define una métrica, un periodo, una población de comparación y un criterio de éxito antes de mirar resultados. Separa exploración de confirmación y documenta cambios.', example: 'hypothesis -> measure -> compare -> document' }
+  ],
+  underwriting: [
+    { id: 'underwriting-4', title: 'Capital de trabajo', objective: 'Entender cuándo la operación consume caja.', content: 'Ventas crecientes no garantizan liquidez. Revisa cuentas por cobrar, inventarios, proveedores y ciclo de conversión de efectivo, siempre comparando fechas y calidad de los saldos.', example: 'cash_conversion = receivables + inventory - payables' },
+    { id: 'underwriting-5', title: 'Escenarios y sensibilidad', objective: 'Evaluar qué ocurre cuando cambia un supuesto.', content: 'Construye escenarios base, adverso y severo. Una decisión sólida muestra qué variable rompe la capacidad de pago y qué mitigación reduce la exposición.', example: 'base -> adverse -> severe -> mitigation' },
+    { id: 'underwriting-6', title: 'Monitoreo de contraparte', objective: 'Convertir una aprobación en una relación vigilada.', content: 'Define indicadores, frecuencia, gatillos y responsable. El monitoreo debe actualizar la decisión cuando aparecen hechos nuevos, no ser un reporte decorativo.', example: 'indicator -> threshold -> action -> owner' }
+  ],
+  fraud: [
+    { id: 'fraud-4', title: 'Velocidad y comportamiento', objective: 'Detectar cambios de ritmo y secuencia.', content: 'La velocidad compara cantidad, tiempo y contexto: muchas altas desde un origen, cambios de cuenta seguidos o movimientos fuera del patrón. Ajusta por estacionalidad y actividad legítima.', example: 'velocity = events / time_window' },
+    { id: 'fraud-5', title: 'Diseño contra evasión', objective: 'Anticipar cómo una regla puede ser burlada.', content: 'Si un actor conoce un umbral puede fragmentar montos, rotar identidades o esperar ventanas. Usa señales complementarias, límites adaptativos y revisión de casos cercanos al corte.', example: 'rule -> behavior_change -> new_signal' },
+    { id: 'fraud-6', title: 'Investigación y cierre', objective: 'Cerrar alertas con un resultado auditable.', content: 'Una alerta debe terminar como descartada, pendiente, confirmada por evidencia o escalada. Registra qué se revisó, qué no se pudo comprobar y qué aprendizaje vuelve al sistema.', example: 'alert -> triage -> evidence -> disposition -> feedback' }
+  ],
+  graph: [
+    { id: 'graph-4', title: 'Centralidad con contexto', objective: 'Interpretar importancia sin confundirla con culpabilidad.', content: 'Un nodo central puede ser un proveedor legítimo, un intermediario operativo o un concentrador de riesgo. La métrica dirige preguntas; la evidencia y el contexto sostienen conclusiones.', example: 'centrality -> hypothesis -> corroboration' },
+    { id: 'graph-5', title: 'Comunidades y temporalidad', objective: 'Detectar grupos que cambian con el tiempo.', content: 'Una comunidad es una estructura matemática, no una acusación. Compara snapshots, altas, bajas y relaciones activas para encontrar cambios que merezcan investigación.', example: 'graph_t0 -> graph_t1 -> changed_edges' },
+    { id: 'graph-6', title: 'Grafo explicable', objective: 'Mostrar por qué una relación llegó al expediente.', content: 'Guarda origen, fecha, tipo de relación y confianza de cada arista. Una visualización bonita sin provenance puede inducir una certeza que los datos no tienen.', example: 'edge = {source, target, type, date, provenance}' }
+  ],
+  security: [
+    { id: 'security-4', title: 'Gestión de secretos', objective: 'Reducir el impacto de credenciales expuestas.', content: 'Separa secretos del código, usa rotación, mínimo privilegio y detección de exposición. La seguridad de una credencial incluye cómo se crea, almacena, usa, revoca y audita.', example: 'secret -> vault -> short_lived_access -> revoke' },
+    { id: 'security-5', title: 'Integridad y cadena de suministro', objective: 'Confiar en dependencias y despliegues con evidencia.', content: 'Versiona dependencias, revisa cambios, limita permisos de CI/CD y conserva artefactos. Un paquete confiable hoy puede cambiar mañana; verifica procedencia y comportamiento.', example: 'source -> build -> artifact -> deploy -> verify' },
+    { id: 'security-6', title: 'Respuesta a incidentes', objective: 'Actuar rápido sin destruir evidencia.', content: 'Preparación, detección, contención, erradicación, recuperación y lecciones aprendidas forman un ciclo. Define quién decide, qué se preserva y qué comunicación es necesaria.', example: 'prepare -> detect -> contain -> recover -> learn' }
+  ],
+  'security-analytics': [
+    { id: 'security-analytics-4', title: 'Normalización de eventos', objective: 'Comparar eventos de fuentes distintas.', content: 'Un login de un proveedor de identidad y uno de una aplicación pueden tener nombres diferentes. Normaliza actor, origen, tiempo, acción, resultado y dispositivo antes de correlacionar.', example: 'source_event -> common_event_schema' },
+    { id: 'security-analytics-5', title: 'Detección basada en hipótesis', objective: 'Escribir reglas que puedan ser refutadas.', content: 'Una buena detección describe comportamiento, contexto y evidencia esperada. Añade excepciones justificadas, ventana temporal y una prueba con datos normales.', example: 'hypothesis + context + evidence + test' },
+    { id: 'security-analytics-6', title: 'Métricas del SOC', objective: 'Medir utilidad, no solo cantidad de alertas.', content: 'Volumen de alertas no equivale a seguridad. Observa tiempo de detección, tiempo de respuesta, tasa de falsos positivos, cobertura y calidad del cierre.', example: 'quality = signal + response + learning' }
+  ],
+  osint: [
+    { id: 'osint-4', title: 'Búsqueda reproducible', objective: 'Documentar cómo encontraste un dato.', content: 'Registra consulta, fecha, URL, captura o archivo, idioma y contexto. La reproducibilidad permite que otra persona verifique el hallazgo sin depender de tu memoria.', example: 'query + timestamp + source + capture' },
+    { id: 'osint-5', title: 'Corroboración y conflicto', objective: 'Resolver fuentes que no coinciden.', content: 'Cuando dos fuentes difieren, compara cercanía al hecho, fecha, independencia, evidencia primaria y posibles incentivos. No escojas la fuente que confirma tu hipótesis solo por conveniencia.', example: 'claim -> source_a/source_b -> evaluate -> qualify' },
+    { id: 'osint-6', title: 'Ética y minimización', objective: 'Investigar sin ampliar daño innecesario.', content: 'Recolecta solo lo necesario, evita exponer datos personales y separa interés legítimo de curiosidad. Una investigación defendible también explica qué decidió no recopilar.', example: 'purpose -> minimum_data -> protect -> retain' }
+  ],
+  'machine-learning': [
+    { id: 'machine-learning-4', title: 'Diseño de dataset', objective: 'Alinear variables, etiquetas y momento de decisión.', content: 'Cada fila debe representar una unidad clara y cada feature debe existir antes de decidir. Documenta definición, origen, faltantes, transformaciones y población.', example: 'unit + label_time + feature_time + provenance' },
+    { id: 'machine-learning-5', title: 'Validación y drift', objective: 'Saber cuándo un modelo deja de representar la realidad.', content: 'Evalúa por tiempo, segmento y distribución. Drift en entradas o resultados puede degradar el score aunque el código no haya cambiado.', example: 'train -> validate -> monitor_distribution -> retrain_review' },
+    { id: 'machine-learning-6', title: 'Gobernanza del modelo', objective: 'Mantener control humano y trazabilidad.', content: 'Versiona datos, código, parámetros, métricas y decisiones. Define responsable, frecuencia de revisión, límites de uso y proceso para retirar un modelo.', example: 'model_card + approval + monitoring + retirement' }
+  ],
+  engine: [
+    { id: 'engine-4', title: 'Contratos de datos', objective: 'Definir qué significa que una entrada sea válida.', content: 'Un contrato especifica campos, tipos, rangos, fechas, provenance y comportamiento ante ausencia. Sin contrato, cada etapa interpreta el dato a su manera.', example: 'schema + constraints + owner + version' },
+    { id: 'engine-5', title: 'Versionado de decisiones', objective: 'Reproducir qué habría decidido el sistema en el pasado.', content: 'Guarda versión de reglas, features, fuentes y modelo junto con cada evaluación. La reproducibilidad es necesaria para auditar, explicar y corregir.', example: 'assessment = data_version + rule_version + model_version' },
+    { id: 'engine-6', title: 'Operación del motor', objective: 'Cerrar el ciclo entre evidencia y aprendizaje.', content: 'Mide cobertura, calidad, latencia, revisiones y resultados posteriores. Las correcciones de analistas deben convertirse en aprendizaje controlado, no en cambios invisibles.', example: 'observe -> review -> improve -> approve -> release' }
+  ]
+};
+
 const modules: AcademyModule[] = baseModules.map((item) => ({
   ...item,
   ...learningContent[item.id],
+  lessons: [...learningContent[item.id].lessons, ...supplementalLessons[item.id]],
   ...moduleDetails[item.id]
 }));
 
