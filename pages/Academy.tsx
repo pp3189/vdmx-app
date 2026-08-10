@@ -151,6 +151,13 @@ export const Academy: React.FC = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(nextState ? { syncCode: code, state: nextState } : { syncCode: code })
     });
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      if (response.status === 404) {
+        throw new Error('La sincronización todavía se está desplegando en el servidor.');
+      }
+      throw new Error('El servidor de sincronización no devolvió una respuesta válida.');
+    }
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || 'No se pudo sincronizar.');
     return payload as { state: AcademyState | null; updatedAt: string | null };
