@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/transunion-query",
+      "destination": "/transunion-query/index.html"
+    }
+  ]
+}

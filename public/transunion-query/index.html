@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VDMX | Consulta TransUnion</title>
+    <meta name="description" content="Solicita tu consulta vehicular de VDMX." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/transunion-query/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="VDMX inicio"><span class="brand-mark">V</span><span><b>VDMX</b><small>RISK INTELLIGENCE</small></span></a>
+      <span class="header-status"><i></i> Servicio seguro</span>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">VDMX · CONSULTAS</p>
+          <h1>Consulta TransUnion para tu vehículo</h1>
+          <p class="hero-lede">Solicita una consulta y recibe el reporte en el WhatsApp que indiques. Primero confirmamos tu pago; después capturamos los datos del vehículo.</p>
+          <div class="trust-row"><span><b>01</b> Paga en Mercado Pago</span><span><b>02</b> Captura los datos</span><span><b>03</b> Recibe el reporte</span></div>
+        </div>
+        <div class="order-card" id="order-card">
+          <div class="card-kicker">CONSULTA INDIVIDUAL</div>
+          <h2 id="product-name">Consulta TransUnion</h2>
+          <p class="card-description">Una solicitud por vehículo. El precio y la moneda se muestran antes de pagar.</p>
+          <div class="price-row"><strong id="price">$500.00</strong><span id="currency">MXN</span></div>
+          <button class="primary-button" id="buy-button">Pagar con Mercado Pago <span>→</span></button>
+          <p class="microcopy">No almacenamos datos de tarjeta. El pago se procesa en Mercado Pago.</p>
+          <div class="notice" id="notice" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="steps-section"><div class="section-heading"><p class="eyebrow">PROCESO</p><h2>Un flujo claro después del pago</h2></div><div class="steps-grid"><article><span>01</span><h3>Orden asignada</h3><p>Al iniciar el pago se crea un número único para dar seguimiento a tu solicitud.</p></article><article><span>02</span><h3>Pago confirmado</h3><p>Solo el webhook validado de Mercado Pago desbloquea la captura de información.</p></article><article><span>03</span><h3>Datos enviados</h3><p>La solicitud llega al bot de Telegram con el número de orden y el WhatsApp de entrega.</p></article></div></section>
+
+      <section class="form-section hidden" id="data-section">
+        <div class="section-heading"><p class="eyebrow">ORDEN <span id="order-number"></span></p><h2>Datos del vehículo</h2><p>Completa la información para preparar tu consulta. El número de WhatsApp se confirma dos veces, pero no se valida automáticamente.</p></div>
+        <form id="vehicle-form" class="vehicle-form">
+          <div class="form-grid">
+            <label>Número de serie <input name="serialNumber" required maxlength="80" placeholder="VIN o NIV" /></label>
+            <label>Placa <input name="plate" required maxlength="30" placeholder="ABC-123" /></label>
+            <label>Estado de la placa <input name="plateState" required maxlength="60" placeholder="Jalisco" /></label>
+            <label>Color <input name="color" required maxlength="40" placeholder="Blanco" /></label>
+            <label>Kilometraje actual <input name="mileage" required inputmode="decimal" placeholder="85000" /></label>
+            <label>Versión <input name="version" required maxlength="80" placeholder="Comfortline" /></label>
+            <label>Año <input name="year" required inputmode="numeric" maxlength="4" placeholder="2020" /></label>
+            <label>Marca <input name="make" required maxlength="50" placeholder="Volkswagen" /></label>
+            <label class="wide">Tipo / modelo del auto <input name="vehicleType" required maxlength="80" placeholder="Jetta" /></label>
+            <label>WhatsApp de entrega <input name="whatsapp" required maxlength="40" placeholder="Número de WhatsApp" /></label>
+            <label>Confirma WhatsApp <input name="whatsappConfirmation" required maxlength="40" placeholder="Repite el número" /></label>
+          </div>
+          <label class="consent"><input type="checkbox" name="consent" required /> <span>Acepto que VDMX use estos datos para gestionar esta consulta y entregar el resultado al WhatsApp indicado.</span></label>
+          <button class="primary-button" type="submit">Enviar datos de la consulta <span>→</span></button>
+          <div class="notice" id="form-notice" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <section class="faq-section"><div><p class="eyebrow">IMPORTANTE</p><h2>Antes de comenzar</h2></div><div class="faq-list"><details open><summary>¿Cuándo se habilitan los datos?</summary><p>Después de que nuestro servidor recibe y valida la confirmación de pago de Mercado Pago.</p></details><details><summary>¿Qué pasa con mi WhatsApp?</summary><p>Solo se usa como destino de entrega. Pedimos escribirlo dos veces para reducir errores de captura.</p></details><details><summary>¿La consulta automática de TransUnion ya está conectada?</summary><p>La recepción de la solicitud y el aviso por Telegram están preparados. La consulta automática requiere las credenciales y el contrato autorizado del producto TransUnion.</p></details></div></section>
+    </main>
+    <footer><span>VDMX Risk Intelligence</span><span>Consulta · Orden · Evidencia</span></footer>
+    <script src="/transunion-query/app.js" type="module"></script>
+  </body>
+</html>

@@ -26,3 +26,15 @@ La ruta discreta de estudio es `/#/vdmx-academy`. El primer acceso pide un códi
 El progreso se guarda en el backend. En producción, configura `DATABASE_URL` para que el servidor use PostgreSQL; la tabla `academy_progress` se crea automáticamente. En Vercel, configura `VITE_API_URL` con la URL pública del backend Express, por ejemplo `https://vdmx-app-production.up.railway.app`.
 
 El código de sincronización funciona como una llave privada: no se guarda en el servidor, pero cualquier persona que lo conozca podría acceder a ese progreso.
+
+## Consulta TransUnion
+
+La consulta individual se despliega dentro del mismo proyecto de Vercel en `https://vdmx.mx/transunion-query`. Su API serverless usa las rutas `/api/transunion/*` y guarda las órdenes en Supabase.
+
+Variables privadas requeridas en Vercel: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`, `PUBLIC_URL=https://vdmx.mx`, `PAYMENTS_MODE=mercadopago` y `QUERY_PRICE_MXN=500.00`.
+
+Webhook de Mercado Pago:
+
+```text
+https://vdmx.mx/api/transunion/webhook
+```
