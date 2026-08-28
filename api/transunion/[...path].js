@@ -104,7 +104,7 @@ function validateVehicle(body = {}) {
 }
 
 async function mercadoPagoRequest(path, options = {}) {
-  if (!process.env.MP_ACCESS_TOKEN) throw new Error('Falta MP_ACCESS_TOKEN.');
+  if (!process.env.MP_ACCESS_TOKEN) throw new Error('El servicio de pago no está configurado.');
   const response = await fetch(`${MP_API}${path}`, {
     ...options,
     headers: {
@@ -118,9 +118,9 @@ async function mercadoPagoRequest(path, options = {}) {
     const causes = Array.isArray(payload.cause)
       ? payload.cause.map((cause) => cause.description || cause.code).filter(Boolean).join('; ')
       : '';
-    const detail = payload.message || payload.error || causes || `Mercado Pago devolvió ${response.status}.`;
+    const detail = payload.message || payload.error || causes || `El servicio de pago devolvió ${response.status}.`;
     console.error('Mercado Pago API error', { status: response.status, detail, cause: payload.cause });
-    throw new Error(`Mercado Pago ${response.status}: ${detail}`);
+    throw new Error('No se pudo procesar el pago.');
   }
   return payload;
 }
