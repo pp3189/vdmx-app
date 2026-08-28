@@ -113,7 +113,14 @@ async function mercadoPagoRequest(path, options = {}) {
     }
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.message || payload.error || `Mercado Pago devolvió ${response.status}.`);
+  if (!response.ok) {
+    const causes = Array.isArray(payload.cause)
+      ? payload.cause.map((cause) => cause.description || cause.code).filter(Boolean).join('; ')
+      : '';
+    const detail = payload.message || payload.error || causes || `Mercado Pago devolvió ${response.status}.`;
+    console.error('Mercado Pago API error', { status: response.status, detail, cause: payload.cause });
+    throw new Error(`Mercado Pago ${response.status}: ${detail}`);
+  }
   return payload;
 }
 
