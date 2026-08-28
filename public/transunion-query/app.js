@@ -45,12 +45,21 @@ async function createOrder() {
   }
 }
 
-function showDataForm(orderNumber) {
+function lockSubmittedForm() {
+  [...form.elements].forEach((element) => { element.disabled = true; });
+  const submit = form.querySelector('button[type="submit"]');
+  submit.textContent = 'Solicitud ya enviada';
+  submit.classList.add('is-complete');
+  showMessage(formNotice, 'Esta orden ya fue enviada. No se puede enviar otra solicitud con este número.', 'success');
+}
+
+function showDataForm(orderNumber, order = null) {
   document.querySelector('#order-number').textContent = orderNumber;
   dataSection.classList.remove('hidden');
   dataSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   buyButton.disabled = true;
   buyButton.textContent = 'Orden creada';
+  if (order?.telegramSent) lockSubmittedForm();
 }
 
 async function pollOrder(orderNumber) {
@@ -59,7 +68,7 @@ async function pollOrder(orderNumber) {
     if (order.paid) {
       clearInterval(state.polling);
       showMessage(notice, 'Pago confirmado. Completa los datos del vehículo.', 'success');
-      showDataForm(orderNumber);
+      showDataForm(orderNumber, order);
     }
   } catch {
     // El webhook puede tardar unos segundos después del regreso de Mercado Pago.
@@ -83,16 +92,23 @@ form.addEventListener('submit', async (event) => {
   const data = Object.fromEntries(new FormData(form).entries());
   data.consent = form.elements.consent.checked;
   const submit = form.querySelector('button');
+  let submitted = false;
   submit.disabled = true;
   showMessage(formNotice, 'Enviando datos...');
   try {
-    await api(`/orders/${encodeURIComponent(state.orderNumber)}/vehicle`, { method: 'POST', body: JSON.stringify(data) });
+    const result = await api(`/orders/${encodeURIComponent(state.orderNumber)}/vehicle`, { method: 'POST', body: JSON.stringify(data) });
+    if (result.alreadySent) {
+      lockSubmittedForm();
+      submitted = true;
+      return;
+    }
     showMessage(formNotice, 'Datos recibidos. La solicitud fue enviada para preparar tu reporte.', 'success');
-    form.reset();
+    lockSubmittedForm();
+    submitted = true;
   } catch (error) {
     showMessage(formNotice, error.message, 'error');
   } finally {
-    submit.disabled = false;
+    if (!submitted) submit.disabled = false;
   }
 });
 
