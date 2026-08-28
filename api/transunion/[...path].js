@@ -237,13 +237,15 @@ export default async function handler(req, res) {
       const validated = validateVehicle(body);
       if (validated.error) return res.status(400).json({ error: validated.error });
       if (order.telegram_sent_at) return res.status(200).json({ orderNumber: number, status: order.status, sent: true });
-      const saved = await updateOrder(number, { vehicle_data: validated.data, whatsapp: validated.data.whatsapp, status: 'DATA_RECEIVED', data_received_at: new Date().toISOString() });
+      await updateOrder(number, { vehicle_data: validated.data, whatsapp: validated.data.whatsapp, status: 'DATA_RECEIVED', data_received_at: new Date().toISOString() });
       try {
-        await sendTelegram(number, validated.data);
+        // Reserve delivery before calling Telegram so a slow follow-up update
+        // cannot leave the browser waiting after the message was delivered.
         await updateOrder(number, { telegram_sent_at: new Date().toISOString(), telegram_error: null });
+        await sendTelegram(number, validated.data);
         return res.status(200).json({ orderNumber: number, status: 'DATA_RECEIVED', sent: true });
       } catch (error) {
-        await updateOrder(number, { telegram_error: error instanceof Error ? error.message : 'No se pudo enviar Telegram.' });
+        await updateOrder(number, { telegram_sent_at: null, telegram_error: error instanceof Error ? error.message : 'No se pudo enviar Telegram.' });
         return res.status(502).json({ error: 'Los datos se guardaron, pero no se pudo avisar al bot. Reintenta enviar el formulario.' });
       }
     }
