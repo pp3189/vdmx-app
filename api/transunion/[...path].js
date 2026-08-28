@@ -252,9 +252,9 @@ export default async function handler(req, res) {
       const eventType = body?.type || url.searchParams.get('type');
       // Mercado Pago's connectivity simulator can send an empty ping. Acknowledge it
       // without weakening signature validation for real payment events.
-      if (!eventType || eventType !== 'payment') return res.sendStatus(200);
+      if (!eventType || eventType !== 'payment') return res.status(200).end();
       // Simulated events use a placeholder payment ID and must not touch real orders.
-      if (body?.live_mode === false) return res.sendStatus(200);
+      if (body?.live_mode === false) return res.status(200).end();
       const dataId = clean(url.searchParams.get('data.id') || body?.data?.id, 100);
       if (!verifyWebhookSignature({ signature: req.headers['x-signature'], requestId: req.headers['x-request-id'], dataId })) return res.status(401).json({ error: 'Firma de webhook inválida.' });
       if (!dataId) return res.status(400).json({ error: 'Falta data.id.' });
@@ -264,7 +264,7 @@ export default async function handler(req, res) {
       if (order && payment.status === 'approved' && Number(payment.transaction_amount) === Number(order.amount) && (!payment.currency_id || payment.currency_id === order.currency)) {
         await updateOrder(numberFromPayment, { status: order.vehicle_data ? 'DATA_RECEIVED' : 'PAID', mp_payment_id: dataId, paid_at: order.paid_at || new Date().toISOString() });
       }
-      return res.sendStatus(200);
+      return res.status(200).end();
     }
 
     return res.status(404).json({ error: 'Endpoint no encontrado.' });
