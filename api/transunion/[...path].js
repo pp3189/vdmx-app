@@ -249,9 +249,14 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && parts[0] === 'webhook') {
+      const eventType = body?.type || url.searchParams.get('type');
+      // Mercado Pago's connectivity simulator can send an empty ping. Acknowledge it
+      // without weakening signature validation for real payment events.
+      if (!eventType || eventType !== 'payment') return res.sendStatus(200);
+      // Simulated events use a placeholder payment ID and must not touch real orders.
+      if (body?.live_mode === false) return res.sendStatus(200);
       const dataId = clean(url.searchParams.get('data.id') || body?.data?.id, 100);
       if (!verifyWebhookSignature({ signature: req.headers['x-signature'], requestId: req.headers['x-request-id'], dataId })) return res.status(401).json({ error: 'Firma de webhook inválida.' });
-      if (body?.type !== 'payment' && url.searchParams.get('type') !== 'payment') return res.sendStatus(200);
       if (!dataId) return res.status(400).json({ error: 'Falta data.id.' });
       const payment = await mercadoPagoRequest(`/v1/payments/${encodeURIComponent(dataId)}`);
       const numberFromPayment = clean(payment.external_reference, 40);
