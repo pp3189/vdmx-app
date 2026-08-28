@@ -236,7 +236,7 @@ export default async function handler(req, res) {
       if (!['PAID', 'DATA_RECEIVED'].includes(order.status)) return res.status(402).json({ error: 'La orden aún no tiene un pago aprobado.' });
       const validated = validateVehicle(body);
       if (validated.error) return res.status(400).json({ error: validated.error });
-      if (order.telegram_sent_at) return res.status(200).json({ orderNumber: number, status: order.status, sent: true });
+      if (order.telegram_sent_at) return res.status(200).json({ orderNumber: number, status: order.status, sent: true, alreadySent: true });
       await updateOrder(number, { vehicle_data: validated.data, whatsapp: validated.data.whatsapp, status: 'DATA_RECEIVED', data_received_at: new Date().toISOString() });
       try {
         // Reserve delivery before calling Telegram so a slow follow-up update
