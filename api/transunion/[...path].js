@@ -5,7 +5,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SER
 const MP_API = 'https://api.mercadopago.com';
 const price = Number(process.env.QUERY_PRICE_MXN || 500);
 const currency = 'MXN';
-const paymentsMode = process.env.PAYMENTS_MODE || 'mercadopago';
+const paymentsMode = (process.env.PAYMENTS_MODE || 'mercadopago').trim().toLowerCase();
 // Use the canonical host so Mercado Pago does not receive a 307 redirect.
 const publicUrl = (process.env.PUBLIC_URL || 'https://www.vdmx.mx').replace(/\/$/, '');
 
@@ -104,7 +104,7 @@ function validateVehicle(body = {}) {
 }
 
 async function mercadoPagoRequest(path, options = {}) {
-  if (!process.env.MP_ACCESS_TOKEN) throw new Error('Falta MP_ACCESS_TOKEN.');
+  if (!process.env.MP_ACCESS_TOKEN) throw new Error('El servicio de pago no está configurado.');
   const response = await fetch(`${MP_API}${path}`, {
     ...options,
     headers: {
@@ -118,9 +118,9 @@ async function mercadoPagoRequest(path, options = {}) {
     const causes = Array.isArray(payload.cause)
       ? payload.cause.map((cause) => cause.description || cause.code).filter(Boolean).join('; ')
       : '';
-    const detail = payload.message || payload.error || causes || `Mercado Pago devolvió ${response.status}.`;
+    const detail = payload.message || payload.error || causes || `El servicio de pago devolvió ${response.status}.`;
     console.error('Mercado Pago API error', { status: response.status, detail, cause: payload.cause });
-    throw new Error(`Mercado Pago ${response.status}: ${detail}`);
+    throw new Error('No se pudo procesar el pago.');
   }
   return payload;
 }
@@ -236,22 +236,29 @@ export default async function handler(req, res) {
       if (!['PAID', 'DATA_RECEIVED'].includes(order.status)) return res.status(402).json({ error: 'La orden aún no tiene un pago aprobado.' });
       const validated = validateVehicle(body);
       if (validated.error) return res.status(400).json({ error: validated.error });
-      if (order.telegram_sent_at) return res.status(200).json({ orderNumber: number, status: order.status, sent: true });
-      const saved = await updateOrder(number, { vehicle_data: validated.data, whatsapp: validated.data.whatsapp, status: 'DATA_RECEIVED', data_received_at: new Date().toISOString() });
+      if (order.telegram_sent_at) return res.status(200).json({ orderNumber: number, status: order.status, sent: true, alreadySent: true });
+      await updateOrder(number, { vehicle_data: validated.data, whatsapp: validated.data.whatsapp, status: 'DATA_RECEIVED', data_received_at: new Date().toISOString() });
       try {
-        await sendTelegram(number, validated.data);
+        // Reserve delivery before calling Telegram so a slow follow-up update
+        // cannot leave the browser waiting after the message was delivered.
         await updateOrder(number, { telegram_sent_at: new Date().toISOString(), telegram_error: null });
+        await sendTelegram(number, validated.data);
         return res.status(200).json({ orderNumber: number, status: 'DATA_RECEIVED', sent: true });
       } catch (error) {
-        await updateOrder(number, { telegram_error: error instanceof Error ? error.message : 'No se pudo enviar Telegram.' });
+        await updateOrder(number, { telegram_sent_at: null, telegram_error: error instanceof Error ? error.message : 'No se pudo enviar Telegram.' });
         return res.status(502).json({ error: 'Los datos se guardaron, pero no se pudo avisar al bot. Reintenta enviar el formulario.' });
       }
     }
 
     if (req.method === 'POST' && parts[0] === 'webhook') {
+      const eventType = body?.type || url.searchParams.get('type');
+      // Mercado Pago's connectivity simulator can send an empty ping. Acknowledge it
+      // without weakening signature validation for real payment events.
+      if (!eventType || eventType !== 'payment') return res.status(200).end();
+      // Simulated events use a placeholder payment ID and must not touch real orders.
+      if (body?.live_mode === false) return res.status(200).end();
       const dataId = clean(url.searchParams.get('data.id') || body?.data?.id, 100);
       if (!verifyWebhookSignature({ signature: req.headers['x-signature'], requestId: req.headers['x-request-id'], dataId })) return res.status(401).json({ error: 'Firma de webhook inválida.' });
-      if (body?.type !== 'payment' && url.searchParams.get('type') !== 'payment') return res.sendStatus(200);
       if (!dataId) return res.status(400).json({ error: 'Falta data.id.' });
       const payment = await mercadoPagoRequest(`/v1/payments/${encodeURIComponent(dataId)}`);
       const numberFromPayment = clean(payment.external_reference, 40);
@@ -259,7 +266,7 @@ export default async function handler(req, res) {
       if (order && payment.status === 'approved' && Number(payment.transaction_amount) === Number(order.amount) && (!payment.currency_id || payment.currency_id === order.currency)) {
         await updateOrder(numberFromPayment, { status: order.vehicle_data ? 'DATA_RECEIVED' : 'PAID', mp_payment_id: dataId, paid_at: order.paid_at || new Date().toISOString() });
       }
-      return res.sendStatus(200);
+      return res.status(200).end();
     }
 
     return res.status(404).json({ error: 'Endpoint no encontrado.' });
