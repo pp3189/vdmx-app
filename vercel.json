@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/api/transunion/config",
+      "destination": "/api/transunion?route=config"
+    },
+    {
+      "source": "/api/transunion/orders/:orderNumber/vehicle",
+      "destination": "/api/transunion?route=orders/:orderNumber/vehicle"
+    },
+    {
+      "source": "/api/transunion/orders/:orderNumber/demo-approve",
+      "destination": "/api/transunion?route=orders/:orderNumber/demo-approve"
+    },
+    {
+      "source": "/api/transunion/orders/:orderNumber",
+      "destination": "/api/transunion?route=orders/:orderNumber"
+    },
+    {
+      "source": "/api/transunion/orders",
+      "destination": "/api/transunion?route=orders"
+    },
+    {
+      "source": "/api/transunion/webhook",
+      "destination": "/api/transunion?route=webhook"
+    },
+    {
       "source": "/transunion-query",
       "destination": "/transunion-query/index.html"
     }

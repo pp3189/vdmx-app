@@ -183,7 +183,10 @@ async function sendTelegram(number, data) {
 
 function pathParts(req) {
   const url = new URL(req.url, 'https://vercel.local');
-  const suffix = url.pathname.split('/api/transunion')[1] || '';
+  const routeFromRewrite = url.searchParams.get('route');
+  const suffix = routeFromRewrite
+    ? `/${routeFromRewrite}`
+    : (url.pathname.split('/api/transunion')[1] || '');
   return { parts: suffix.split('/').filter(Boolean).map(decodeURIComponent), url };
 }
 
