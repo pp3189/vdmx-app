@@ -6,7 +6,8 @@ const MP_API = 'https://api.mercadopago.com';
 const price = Number(process.env.QUERY_PRICE_MXN || 500);
 const currency = 'MXN';
 const paymentsMode = process.env.PAYMENTS_MODE || 'mercadopago';
-const publicUrl = (process.env.PUBLIC_URL || 'https://vdmx.mx').replace(/\/$/, '');
+// Use the canonical host so Mercado Pago does not receive a 307 redirect.
+const publicUrl = (process.env.PUBLIC_URL || 'https://www.vdmx.mx').replace(/\/$/, '');
 
 function clean(value, max = 120) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
