@@ -5,7 +5,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SER
 const MP_API = 'https://api.mercadopago.com';
 const price = Number(process.env.QUERY_PRICE_MXN || 500);
 const currency = 'MXN';
-const paymentsMode = process.env.PAYMENTS_MODE || 'mercadopago';
+const paymentsMode = (process.env.PAYMENTS_MODE || 'mercadopago').trim().toLowerCase();
 // Use the canonical host so Mercado Pago does not receive a 307 redirect.
 const publicUrl = (process.env.PUBLIC_URL || 'https://www.vdmx.mx').replace(/\/$/, '');
 
