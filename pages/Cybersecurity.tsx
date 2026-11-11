@@ -9,8 +9,11 @@ const whatsappNumber = '522221111154';
 const navigation = [
   { href: '#servicios', label: 'Servicios' },
   { href: '#enfoque', label: 'Nuestro enfoque' },
+  { href: '#equipo', label: 'Equipo' },
   { href: '#contacto', label: 'Contacto' },
 ];
+
+const certifications = ['Cloudflare', 'ACFE', 'Microsoft', 'Kaspersky', 'Google', 'AWS'];
 
 const approach = [
   ['Entendemos tu exposición', 'Identificamos activos críticos, controles existentes y los escenarios que más pueden afectar tu operación.'],
@@ -75,7 +78,6 @@ export function Cybersecurity() {
             {navigation.map(({ href, label }) => (
               <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
             ))}
-            <a className="cyber-nav-cta" href="/#/">Portal de verificación <Icon name="arrow_outward" /></a>
           </nav>
         </div>
       </header>
@@ -144,6 +146,30 @@ export function Cybersecurity() {
           </div>
         </section>
 
+        <section className="cyber-team" id="equipo" aria-labelledby="cyber-expert-name" tabIndex={-1}>
+          <div className="cyber-container">
+            <div className="cyber-expert">
+              <img
+                className="cyber-expert-photo"
+                src="/ciberseguridad/jose-armando-ramirez-macias.jpg"
+                alt="Retrato de José Armando Ramírez Macías"
+                width="400"
+                height="400"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="cyber-expert-profile">
+                <h2 id="cyber-expert-name">José Armando Ramírez Macías</h2>
+                <p className="cyber-expert-role">Experto en ciberseguridad</p>
+                <h3>Certificaciones</h3>
+                <ul className="cyber-certifications" role="list">
+                  {certifications.map(issuer => <li key={issuer}>{issuer}</li>)}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="cyber-contact" id="contacto" aria-labelledby="cyber-contact-title" tabIndex={-1}>
           <div className="cyber-container">
             <div className="cyber-contact-panel">
@@ -176,7 +202,6 @@ export function Cybersecurity() {
             </div>
             <nav aria-label="Navegación del pie de página">
               {navigation.map(({ href, label }) => <a key={href} href={href}>{label}</a>)}
-              <a href="/#/">Portal de verificación</a>
             </nav>
           </div>
           <div className="cyber-footer-legal">

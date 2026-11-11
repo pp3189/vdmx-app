@@ -97,19 +97,6 @@
 .cyber-nav { display: flex; align-items: center; gap: clamp(20px, 3vw, 44px); }
 .cyber-nav a { color: var(--muted); font-size: .86rem; font-weight: 750; }
 .cyber-nav a:hover { color: var(--white); }
-.cyber-nav .cyber-nav-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 13px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  color: var(--white);
-}
-
-.cyber-nav-cta .cyber-icon { color: var(--ice); font-size: 1rem; }
-.cyber-nav .cyber-nav-cta:hover { border-color: var(--ice); }
 .cyber-menu-toggle { display: none; }
 
 .cyber-hero {
@@ -207,6 +194,49 @@
 .cyber-steps h3 { margin-bottom: 4px; font-size: 1.6rem; line-height: 1.05; }
 .cyber-steps p { color: var(--muted); font-size: .9rem; }
 
+.cyber-team { padding-top: 86px; background: var(--surface); }
+.cyber-expert {
+  display: grid;
+  grid-template-columns: clamp(150px, 19vw, 232px) minmax(0, 1fr);
+  align-items: center;
+  gap: 22px clamp(26px, 5vw, 70px);
+  padding: clamp(24px, 5vw, 66px);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+}
+
+.cyber-expert-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border: 3px solid #4877a4;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cyber-expert h2 { font-size: clamp(2.3rem, 4.5vw, 4rem); text-wrap: pretty; }
+.cyber-expert .cyber-expert-role { margin-top: 10px; color: var(--ice); font-size: 1rem; font-weight: 750; }
+.cyber-expert h3 { margin-top: 23px; font-size: 1.35rem; line-height: 1.2; }
+.cyber-expert .cyber-certifications {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 11px;
+  padding: 0;
+  list-style: none;
+}
+
+.cyber-certifications li {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: .84rem;
+  font-weight: 750;
+}
+
 .cyber-contact { padding-block: 86px; background: var(--surface); }
 .cyber-contact-panel {
   display: grid;
@@ -281,7 +311,6 @@
 
   .cyber-nav[data-open='true'] { display: grid; }
   .cyber-nav a { display: flex; align-items: center; min-height: 45px; border-bottom: 1px solid var(--line); }
-  .cyber-nav .cyber-nav-cta { margin-top: 12px; }
 
   .cyber-hero { min-height: 570px; align-items: end; }
   .cyber-hero-photo { object-position: 67% center; }
@@ -291,6 +320,7 @@
   .cyber-hero p { margin-top: 18px; }
   .cyber-actions { margin-top: 22px; }
   .cyber-services, .cyber-approach, .cyber-contact { padding-block: 62px; }
+  .cyber-team { padding-top: 62px; }
   .cyber-section-intro, .cyber-approach-layout, .cyber-contact-panel { grid-template-columns: 1fr; }
   .cyber-section-intro { gap: 12px; margin-bottom: 25px; }
   .cyber-approach h2 { max-width: none; }
@@ -300,6 +330,10 @@
 @media (max-width: 560px) {
   .cyber-service-grid { grid-template-columns: minmax(0, 1fr); }
   .cyber-service > a { min-height: 44px; }
+  .cyber-expert { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .cyber-expert-photo { width: min(100%, 164px); }
+  .cyber-expert h2 { text-wrap: balance; }
+  .cyber-certifications { justify-content: center; }
 }
 
 @media (max-width: 374px) {
