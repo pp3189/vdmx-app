@@ -206,7 +206,6 @@ export function Cybersecurity() {
           </div>
           <div className="cyber-footer-legal">
             <span>© {new Date().getFullYear()} VDMX Risk Intelligence</span>
-            <a href="/#/privacy">Aviso de privacidad</a>
           </div>
         </div>
       </footer>
